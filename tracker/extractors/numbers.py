@@ -179,9 +179,17 @@ def is_retrospective(text: str) -> bool:
     return any(w in t for w in _RETRO_WORDS)
 
 
-# 회사(Anthropic) 전사 지표 여부 힌트
+# 회사 전사 지표 여부 힌트(회사명/자기지칭). terms 는 회사별 키워드(소문자).
+def mentions_company(text: str, terms=("anthropic",)) -> bool:
+    t = (text or "").lower()
+    if any((term or "").lower() in t for term in (terms or ())):
+        return True
+    return "our run" in t or "we " in t
+
+
+# 하위호환 별칭(Anthropic 전용)
 def mentions_anthropic(text: str) -> bool:
-    return "anthropic" in (text or "").lower() or "our run" in (text or "").lower() or "we " in (text or "").lower()
+    return mentions_company(text, ("anthropic",))
 
 
 # 하위호환: 기존 호출부용(로컬 컨텍스트 엄격 판정으로 위임)

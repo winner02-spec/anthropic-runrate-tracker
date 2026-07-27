@@ -1,0 +1,68 @@
+# 다중 회사 레지스트리(스펙 §7). 회사별 표시명·도메인·검색어·수집소스를 수집 로직과 분리.
+# anthropic 은 sources 를 비워두면 기존 config/sources.yml(레거시)을 그대로 사용한다.
+# 일일 수집은 매일 08:30 KST 1회만(settings.yml).
+
+companies:
+  anthropic:
+    display_name: Anthropic
+    official_domain: anthropic.com
+    mention_terms: ["anthropic", "claude"]
+    keywords:
+      - "Anthropic revenue run rate"
+      - "Anthropic annualized revenue"
+      - "Anthropic ARR"
+      - "Claude Code revenue run rate"
+      - "Anthropic revenue target"
+      - "Anthropic valuation funding"
+    # sources 생략 → config/sources.yml(레거시) 사용
+
+  openai:
+    display_name: OpenAI
+    official_domain: openai.com
+    mention_terms: ["openai", "chatgpt"]
+    keywords:
+      - "OpenAI ARR"
+      - "OpenAI annual recurring revenue"
+      - "OpenAI annualized revenue"
+      - "OpenAI revenue run rate"
+      - "OpenAI monthly revenue"
+      - "ChatGPT revenue"
+      - "OpenAI revenue target"
+      - "OpenAI valuation"
+      - "OpenAI paid subscribers"
+      - "OpenAI business customers"
+      - "Codex revenue"
+    official_paths:
+      - "https://openai.com/news"
+      - "https://openai.com/index"
+    sources:
+      - name: "OpenAI Newsroom"
+        type: newsroom
+        tier: A
+        url: "https://openai.com/news"
+        enabled: true
+      - name: "OpenAI Index"
+        type: newsroom
+        tier: A
+        url: "https://openai.com/index"
+        enabled: true
+      - name: "Google News — OpenAI ARR"
+        type: google_news
+        tier: B
+        query: "OpenAI ARR annualized revenue"
+        enabled: true
+      - name: "Google News — OpenAI monthly revenue"
+        type: google_news
+        tier: B
+        query: "OpenAI monthly revenue run rate"
+        enabled: true
+      - name: "Google News — OpenAI valuation"
+        type: google_news
+        tier: B
+        query: "OpenAI valuation funding"
+        enabled: true
+    options:
+      request_timeout_sec: 25
+      user_agent: "frontier-ai-runrate-tracker/0.3 (research; contact via repo)"
+      max_articles_per_source: 40
+      auto_confirm_tier_a: true

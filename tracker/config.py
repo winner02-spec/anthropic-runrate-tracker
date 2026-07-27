@@ -43,6 +43,7 @@ VS_SHOWN = (VS_VERIFIED, VS_CORROBORATED, VS_PROVISIONAL)
 
 SETTINGS_YML = CONFIG_DIR / "settings.yml"
 BACKFILL_SOURCES_YML = CONFIG_DIR / "backfill_sources.yml"
+COMPANIES_YML = CONFIG_DIR / "companies.yml"
 
 
 def settings() -> dict:
@@ -73,10 +74,39 @@ STATUS_REJECTED = "rejected"
 STATUS_SUPERSEDED = "superseded"
 
 # ── metric_scope / metric_type ──
-SCOPE_COMPANY = "company"       # 전사 Anthropic
-SCOPE_PRODUCT = "product"       # Claude Code 등 제품별
+SCOPE_COMPANY = "company"       # 전사 지표
+SCOPE_PRODUCT = "product"       # Claude Code / ChatGPT 등 제품별
 METRIC_RUNRATE = "revenue_run_rate"
 METRIC_VALUATION = "valuation"
+
+# ── metric_type 세분화(스펙 §3). 월매출×12 는 ARR 로 저장하지 않는다. ──
+MT_ARR = "arr"                                      # 회사 발표 ARR(연간반복매출)
+MT_RUNRATE = "revenue_run_rate"                     # revenue run-rate(=METRIC_RUNRATE)
+MT_MONTHLY_REVENUE = "monthly_revenue"             # 월 매출(관측)
+MT_DERIVED_ANNUALIZED = "derived_annualized_revenue"  # 월매출×12 등 파생 연환산(공식 ARR 아님)
+MT_PRODUCT_ARR = "product_arr"                      # 특정 제품/파일럿 ARR(전사 ARR 아님)
+MT_TARGET = "target"                               # 목표치
+MT_VALUATION = "valuation"
+MT_ACTIVE_USERS = "active_users"
+MT_PAID_SUBSCRIBERS = "paid_subscribers"
+MT_BUSINESS_CUSTOMERS = "business_customers"
+# 회사 전사 '공식 Run-rate/ARR 선'에 올릴 수 있는 metric_type(파생·제품·사용자수 제외)
+COMPANY_REVENUE_METRICS = (MT_ARR, MT_RUNRATE, MT_MONTHLY_REVENUE)
+
+
+def companies_config() -> dict:
+    """회사 레지스트리(config/companies.yml): 회사별 표시명·도메인·검색어·수집소스.
+    파일 없으면 anthropic 기본만(하위호환)."""
+    import yaml
+    try:
+        data = yaml.safe_load(COMPANIES_YML.read_text(encoding="utf-8")) or {}
+    except Exception:
+        data = {}
+    companies = data.get("companies") or {}
+    if not companies:
+        companies = {"anthropic": {"display_name": "Anthropic",
+                                   "official_domain": "anthropic.com"}}
+    return companies
 
 
 def _load_env(path: Path | None = None) -> dict:

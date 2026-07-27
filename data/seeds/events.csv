@@ -1,3 +1,4 @@
-event_date,event_type,title,description,source_url,content_hash
-2026-02-12,funding,Series G — $30B at $380B post-money,"Led by GIC and Coatue.",https://www.anthropic.com/news/anthropic-raises-30-billion-series-g-funding-380-billion-post-money-valuation,
-2026-05-28,funding,Series H announced,"Run-rate revenue crossed $47B earlier in May 2026.",https://www.anthropic.com/news/series-h,
+company,event_date,event_type,title,description,source_url,content_hash
+anthropic,2026-02-12,funding,Series G — $30B at $380B post-money,"Led by GIC and Coatue.",https://www.anthropic.com/news/anthropic-raises-30-billion-series-g-funding-380-billion-post-money-valuation,
+anthropic,2026-05-28,funding,Series H announced,"Run-rate revenue crossed $47B earlier in May 2026.",https://www.anthropic.com/news/series-h,
+openai,2026-03-31,funding,$122B round at $852B post-money,"Monthly revenue crossed $2B; 900M weekly ChatGPT users; ads pilot >$100M ARR.",https://openai.com/index/accelerating-the-next-phase-ai/,

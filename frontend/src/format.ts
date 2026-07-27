@@ -19,6 +19,7 @@ const QUALIFIER_LABEL: Record<Qualifier, string> = {
   target: "목표",
   estimate: "추정",
   reported: "보도",
+  derived: "파생",
 };
 
 export function qualifierLabel(q: Qualifier | undefined): string {
@@ -35,6 +36,7 @@ export function pointValueText(p: Point): string {
   if (p.qualifier === "approaching") return `${usdBn(lo)} 근접`;
   if (p.qualifier === "approximately") return `약 ${usdBn(lo)}`;
   if (p.qualifier === "target") return `목표 ${usdBn(lo)}`;
+  if (p.qualifier === "derived") return `${usdBn(lo)} (파생)`;
   return usdBn(lo);
 }
 

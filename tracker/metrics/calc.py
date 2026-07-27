@@ -154,16 +154,50 @@ def valuation_multiple(runrate_points: list[dict], valuations: list[dict],
     return out
 
 
+def normalized_series(points: list[dict], anchor: str = "2025-01-01") -> list[dict]:
+    """공식 시계열을 공통 시작점(anchor) 기준 100 으로 정규화(회사간 성장 비교).
+    base = anchor 이후 첫 공식값(없으면 전체 첫 공식값). 각 점 index = value/base*100."""
+    offs = _sorted_official(points)
+    if not offs:
+        return []
+    ad = _d(anchor)
+    base_pt = None
+    for p in offs:
+        d = _d(p.get("as_of_end"))
+        if d and ad and d >= ad:
+            base_pt = p
+            break
+    base_pt = base_pt or offs[0]
+    base = _repr_value(base_pt)
+    if not base:
+        return []
+    out = []
+    for p in offs:
+        v = _repr_value(p)
+        if v is None:
+            continue
+        out.append({"as_of_end": p.get("as_of_end"), "value_usd_bn": v,
+                    "index": round(v / base * 100, 1)})
+    return out
+
+
+# USD 매출성 제품지표만 전사 대비 share 계산(사용자수·구독자수 등은 $ 아님 → share 없음)
+_REVENUE_PRODUCT_METRICS = {"revenue_run_rate", "arr", "product_arr", "monthly_revenue"}
+
+
 def product_contribution(points: list[dict], product_metrics: list[dict]) -> list[dict]:
     off = latest_official(points)
     total = _repr_value(off) if off else None
     out = []
     for pm in product_metrics:
         pv = pm.get("value_usd_bn")
-        share = round(pv / total * 100, 1) if (pv and total) else None
-        out.append({"product": pm.get("product"), "value_usd_bn": pv,
-                    "qualifier": pm.get("qualifier"),
+        mname = pm.get("metric_name")
+        is_revenue = mname in _REVENUE_PRODUCT_METRICS
+        share = round(pv / total * 100, 1) if (pv and total and is_revenue) else None
+        out.append({"product": pm.get("product"), "metric_name": mname,
+                    "value_usd_bn": pv, "qualifier": pm.get("qualifier"),
+                    "unit": pm.get("unit"), "is_revenue": is_revenue,
                     "share_pct": share, "as_of": pm.get("as_of_date"),
-                    "date_mismatch": bool(off and pm.get("as_of_date")
+                    "date_mismatch": bool(off and is_revenue and pm.get("as_of_date")
                                           and pm.get("as_of_date") != off.get("as_of_end"))})
     return out

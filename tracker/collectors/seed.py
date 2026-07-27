@@ -21,6 +21,15 @@ def _num(v):
         return None
 
 
+def _resolve_company(conn, raw) -> tuple[int, str]:
+    """csv 의 company 값(slug 또는 표시명) → (company_id, slug). 기본 anthropic."""
+    slug = (raw or "anthropic").strip().lower()
+    comp = config.companies_config().get(slug, {})
+    cid = db.ensure_company(conn, slug, comp.get("display_name") or slug.title(),
+                            comp.get("official_domain"))
+    return cid, slug
+
+
 def load_runrate_seed(conn, path: Path) -> int:
     if not path.exists():
         return 0
@@ -31,11 +40,13 @@ def load_runrate_seed(conn, path: Path) -> int:
             low = _num(r.get("value_low_usd_bn"))
             high = _num(r.get("value_high_usd_bn"))
             qualifier = (r.get("qualifier") or "exact").strip()
-            ch = r.get("content_hash") or dedup.content_hash(
-                r.get("source_url", ""), r.get("source_name", ""),
+            cid, slug = _resolve_company(conn, r.get("company"))
+            ch = r.get("content_hash") or dedup.company_content_hash(
+                slug, r.get("source_url", ""), r.get("source_name", ""),
                 r.get("published_at"), low, high, qualifier, r.get("evidence_text", ""))
             row = {
-                "company": r.get("company") or "Anthropic",
+                "company": config.companies_config().get(slug, {}).get("display_name") or slug.title(),
+                "company_id": cid,
                 "metric_scope": r.get("metric_scope") or config.SCOPE_COMPANY,
                 "metric_type": r.get("metric_type") or config.METRIC_RUNRATE,
                 "value_low_usd_bn": low, "value_high_usd_bn": high,
@@ -70,10 +81,12 @@ def load_valuation_seed(conn, path: Path) -> int:
     with open(path, encoding="utf-8") as f:
         for r in csv.DictReader(f):
             val = _num(r.get("valuation_usd_bn"))
-            ch = r.get("content_hash") or dedup.content_hash(
-                r.get("source_url", ""), r.get("round_name", ""),
+            cid, slug = _resolve_company(conn, r.get("company"))
+            ch = r.get("content_hash") or dedup.company_content_hash(
+                slug, r.get("source_url", ""), r.get("round_name", ""),
                 r.get("published_at"), val, None, r.get("money_basis", ""))
             row = {
+                "company_id": cid,
                 "as_of_date": r.get("as_of_date") or None, "published_at": r.get("published_at") or None,
                 "money_basis": r.get("money_basis"), "valuation_usd_bn": val,
                 "investment_usd_bn": _num(r.get("investment_usd_bn")),
@@ -97,10 +110,12 @@ def load_product_seed(conn, path: Path) -> int:
     with open(path, encoding="utf-8") as f:
         for r in csv.DictReader(f):
             val = _num(r.get("value_usd_bn"))
-            ch = r.get("content_hash") or dedup.content_hash(
-                r.get("source_url", ""), r.get("product", ""), r.get("published_at"),
+            cid, slug = _resolve_company(conn, r.get("company"))
+            ch = r.get("content_hash") or dedup.company_content_hash(
+                slug, r.get("source_url", ""), r.get("product", ""), r.get("published_at"),
                 val, None, r.get("metric_name", ""))
             row = {
+                "company_id": cid,
                 "product": r.get("product"), "metric_name": r.get("metric_name"),
                 "value_usd_bn": val, "qualifier": r.get("qualifier") or "exact",
                 "unit": r.get("unit"), "date_precision": r.get("date_precision") or "day",
@@ -123,10 +138,12 @@ def load_events_seed(conn, path: Path) -> int:
     now = db.now_kst()
     with open(path, encoding="utf-8") as f:
         for r in csv.DictReader(f):
-            ch = r.get("content_hash") or dedup.content_hash(
-                r.get("source_url", ""), r.get("title", ""), r.get("event_date"),
+            cid, slug = _resolve_company(conn, r.get("company"))
+            ch = r.get("content_hash") or dedup.company_content_hash(
+                slug, r.get("source_url", ""), r.get("title", ""), r.get("event_date"),
                 None, None, r.get("event_type", ""))
             row = {
+                "company_id": cid,
                 "event_date": r.get("event_date") or None, "event_type": r.get("event_type"),
                 "title": r.get("title"), "description": r.get("description"),
                 "source_url": r.get("source_url"), "content_hash": ch, "created_at": now,

@@ -16,44 +16,52 @@ def _points(conn):
         conn, "SELECT * FROM runrate_updates WHERE status=?", (config.STATUS_CONFIRMED,))]
 
 
+# 연환산 공식선(파생·월매출 제외 → 회사 지표 왜곡 방지)
+_ANNUALIZED = (config.MT_ARR, config.MT_RUNRATE)
+
+
 def detect_anomalies(conn, record: bool = True) -> list[dict]:
-    pts = _points(conn)
+    all_pts = _points(conn)
     anomalies: list[dict] = []
 
     def add(typ, detail):
         anomalies.append({"type": typ, "detail": detail})
 
-    off = calc.latest_official(pts)
-    est = calc.latest_estimate(pts)
+    comps = {r["id"]: r["slug"] for r in db.fetchall(conn, "SELECT id, slug FROM companies")}
+    for cid, slug in comps.items():
+        pts = [p for p in all_pts if p.get("company_id") == cid]
+        if not pts:
+            continue
+        # 연환산 공식만 지표에 사용(월매출·파생 제외)
+        ann = [p for p in pts if not (p.get("metric_type") == config.MT_MONTHLY_REVENUE or p.get("is_derived"))]
+        off = calc.latest_official(ann)
+        est = calc.latest_estimate(pts)
 
-    # 90일 이상 공식 업데이트 없음
-    if off and off.get("as_of_end"):
-        try:
-            lag = (date.today() - date.fromisoformat(off["as_of_end"])).days
-            if lag >= 90:
-                add("stale_90d", f"최신 공식 {off['as_of_end']} ({lag}일 경과)")
-        except ValueError:
-            pass
-    # 외부추정이 마지막 공식보다 20%+ 높음
-    if off and est and off.get("value_low_usd_bn") and est.get("value_low_usd_bn"):
-        if est["value_low_usd_bn"] > off["value_low_usd_bn"] * 1.2:
-            add("estimate_gap", f"추정 {est['value_low_usd_bn']} > 공식 {off['value_low_usd_bn']} +20%↑")
-    # 외부추정 감소 / 공식 하락
-    def series(pred):
-        xs = [p for p in pts if pred(p) and p.get("as_of_end") and p.get("value_low_usd_bn") is not None]
-        return sorted(xs, key=lambda p: p["as_of_end"])
-    est_s = series(lambda p: p.get("is_estimate"))
-    if len(est_s) >= 2 and est_s[-1]["value_low_usd_bn"] < est_s[-2]["value_low_usd_bn"]:
-        add("estimate_drop", f"{est_s[-2]['as_of_end']} {est_s[-2]['value_low_usd_bn']} → {est_s[-1]['as_of_end']} {est_s[-1]['value_low_usd_bn']}")
-    off_s = series(lambda p: p.get("is_official"))
-    if len(off_s) >= 2 and off_s[-1]["value_low_usd_bn"] < off_s[-2]["value_low_usd_bn"]:
-        add("lower_official", f"{off_s[-2]['value_low_usd_bn']} → {off_s[-1]['value_low_usd_bn']}")
-    # 급가속/감속
-    acc = calc.acceleration(pts)
-    if acc.get("state") in ("accelerating", "decelerating"):
-        add("accel", f"{acc['state']} (recent {acc.get('recent_per30')} / prior {acc.get('prior_per30')})")
+        if off and off.get("as_of_end"):
+            try:
+                lag = (date.today() - date.fromisoformat(off["as_of_end"])).days
+                if lag >= 90:
+                    add("stale_90d", f"[{slug}] 최신 공식 {off['as_of_end']} ({lag}일 경과)")
+            except ValueError:
+                pass
+        if off and est and off.get("value_low_usd_bn") and est.get("value_low_usd_bn"):
+            if est["value_low_usd_bn"] > off["value_low_usd_bn"] * 1.2:
+                add("estimate_gap", f"[{slug}] 추정 {est['value_low_usd_bn']} > 공식 {off['value_low_usd_bn']} +20%↑")
 
-    # verify-history 항목(날짜역전·같은날상충·혼입·qualifier손실·재인용중복)
+        def series(pred, src=pts):
+            xs = [p for p in src if pred(p) and p.get("as_of_end") and p.get("value_low_usd_bn") is not None]
+            return sorted(xs, key=lambda p: p["as_of_end"])
+        est_s = series(lambda p: p.get("is_estimate"))
+        if len(est_s) >= 2 and est_s[-1]["value_low_usd_bn"] < est_s[-2]["value_low_usd_bn"]:
+            add("estimate_drop", f"[{slug}] {est_s[-2]['as_of_end']} {est_s[-2]['value_low_usd_bn']} → {est_s[-1]['as_of_end']} {est_s[-1]['value_low_usd_bn']}")
+        off_s = series(lambda p: p.get("is_official"), ann)
+        if len(off_s) >= 2 and off_s[-1]["value_low_usd_bn"] < off_s[-2]["value_low_usd_bn"]:
+            add("lower_official", f"[{slug}] {off_s[-2]['value_low_usd_bn']} → {off_s[-1]['value_low_usd_bn']}")
+        acc = calc.acceleration(ann)
+        if acc.get("state") in ("accelerating", "decelerating"):
+            add("accel", f"[{slug}] {acc['state']} (recent {acc.get('recent_per30')} / prior {acc.get('prior_per30')})")
+
+    # verify-history 항목(회사별로 이미 분리·검사됨)
     vh = verify.verify_history(conn)
     for typ in ("date_inversions", "same_date_conflicts", "official_estimate_mix",
                 "qualifier_loss", "requote_duplicates"):

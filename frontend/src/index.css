@@ -54,6 +54,10 @@ th { color: var(--muted); font-weight: 600; }
 button.seg { border: 1px solid var(--line); background: transparent; color: var(--muted);
   border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
 button.seg.on { background: var(--reported); color: #fff; border-color: var(--reported); }
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 18px; border-bottom: 1px solid var(--line); }
+button.tab { border: none; background: transparent; color: var(--muted); cursor: pointer;
+  font-size: 15px; font-weight: 600; padding: 9px 16px; border-bottom: 3px solid transparent; }
+button.tab.on { color: var(--fg, #111); border-bottom-color: var(--reported); }
 a { color: var(--reported); }
 .chartwrap { width: 100%; overflow-x: auto; }
 svg { display: block; max-width: 100%; }

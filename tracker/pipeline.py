@@ -11,7 +11,7 @@ from dataclasses import dataclass, asdict
 from tracker import config, dedup
 from tracker.extractors.numbers import (
     extract_money, has_runrate_phrase, is_excluded_context, product_in_context,
-    is_retrospective, mentions_anthropic,
+    is_retrospective, mentions_company,
 )
 from tracker.extractors.dates import extract_as_of
 from tracker.classifiers.statement import classify
@@ -19,6 +19,8 @@ from tracker.classifiers.statement import classify
 
 @dataclass
 class Candidate:
+    company: str
+    company_id: int | None
     metric_scope: str
     metric_type: str
     value_low_usd_bn: float
@@ -62,8 +64,11 @@ def _best_evidence(context: str) -> str:
 def build_candidates(*, title: str, url: str, text: str, published_at: str | None,
                      source_name: str, tier: str,
                      metric_scope: str = config.SCOPE_COMPANY,
-                     metric_type: str = config.METRIC_RUNRATE) -> list[Candidate]:
-    """한 문서에서 run-rate 관련 금액 후보들을 생성."""
+                     metric_type: str = config.METRIC_RUNRATE,
+                     company: str = "anthropic", company_id: int | None = None,
+                     company_display: str = "Anthropic",
+                     mention_terms: tuple = ("anthropic",)) -> list[Candidate]:
+    """한 문서에서 run-rate 관련 금액 후보들을 생성(회사 스코프)."""
     body = f"{title}. {text}" if title else (text or "")
     cands: list[Candidate] = []
     for money in extract_money(body):
@@ -85,16 +90,17 @@ def build_candidates(*, title: str, url: str, text: str, published_at: str | Non
         asof = extract_as_of(local, published_at)
         st = classify(tier, money.qualifier, local, runrate_context=True, retrospective=retro)
         evidence = _best_evidence(local)
-        ch = dedup.content_hash(url, title, published_at,
-                                money.value_low_usd_bn, money.value_high_usd_bn,
-                                money.qualifier, evidence)
+        ch = dedup.company_content_hash(company, url, title, published_at,
+                                        money.value_low_usd_bn, money.value_high_usd_bn,
+                                        money.qualifier, evidence)
 
         # 자동확정(엄격): TierA official + 전사 scope + 발표일 존재 + 회고/목표 아님 + 회사 언급
         auto = bool(st.auto_confirmable and scope == config.SCOPE_COMPANY
                     and published_at and not retro and not st.is_target
-                    and mentions_anthropic(local))
+                    and mentions_company(local, mention_terms))
         status = config.STATUS_CONFIRMED if auto else config.STATUS_NEEDS_REVIEW
         cands.append(Candidate(
+            company=company_display, company_id=company_id,
             metric_scope=scope, metric_type=metric_type,
             value_low_usd_bn=money.value_low_usd_bn,
             value_high_usd_bn=money.value_high_usd_bn,

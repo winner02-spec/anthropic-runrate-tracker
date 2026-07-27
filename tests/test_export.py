@@ -9,7 +9,8 @@ def _seed_conn(tmp_path):
     conn = db.connect(str(tmp_path / "t.sqlite"))
     db.init_db(conn)
     now = db.now_kst()
-    base = {"company": "Anthropic", "metric_scope": config.SCOPE_COMPANY,
+    cid = db.company_id_by_slug(conn, "anthropic")
+    base = {"company": "Anthropic", "company_id": cid, "metric_scope": config.SCOPE_COMPANY,
             "metric_type": config.METRIC_RUNRATE, "value_high_usd_bn": None,
             "original_currency": "USD", "original_unit": "billion",
             "source_url": "https://www.anthropic.com/news/x", "evidence_text": "ev",
@@ -28,7 +29,8 @@ def _seed_conn(tmp_path):
 
 def test_export_separates_official_and_estimate(tmp_path):
     conn = _seed_conn(tmp_path)
-    payload = dashboard.build_payload(conn)
+    cid = db.company_id_by_slug(conn, "anthropic")
+    payload = dashboard.build_payload(conn, cid, "anthropic", "Anthropic")
     assert len(payload["series"]["official"]) == 1
     assert len(payload["series"]["estimated"]) == 1
     # 공식/추정 분리 — 같은 리스트에 섞이지 않음
@@ -60,4 +62,9 @@ def test_export_writes_valid_json(tmp_path):
     out = tmp_path / "dashboard.json"
     dashboard.write_dashboard(conn, out)
     data = json.loads(out.read_text(encoding="utf-8"))
-    assert data["display_name"].startswith("Anthropic")
+    assert data["display_name"] == "Frontier AI Revenue Tracker"
+    assert data["schema"] == "0.3"
+    # 다중 회사 구조 + 비교 블록
+    assert "anthropic" in data["companies"]
+    assert data["companies"]["anthropic"]["series"]["official"][0]["value_low_usd_bn"] == 14
+    assert "comparison" in data and "anthropic" in data["comparison"]["companies"]

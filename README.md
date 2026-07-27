@@ -1,11 +1,27 @@
-# Anthropic Revenue Run-rate Tracker
+# Frontier AI Revenue Tracker
 
-Anthropic의 **공식 Revenue Run-rate**와 외부 추정치·목표·밸류에이션·제품지표(Claude Code 등)를
-출처 등급별로 수집·검증·저장하고, 방향/가속/공식–추정 갭/목표 진척/밸류에이션 멀티플을 계산해
-**한국어 대시보드 + Telegram 알림**으로 제공하는 투자용 트래커.
+**Anthropic·OpenAI**의 **공식 Revenue Run-rate/ARR**와 외부 추정치·목표·밸류에이션·제품지표를
+출처 등급별로 수집·검증·저장하고, 방향/가속/공식–추정 갭/목표 진척/밸류에이션 멀티플·회사간 비교를
+계산해 **한국어 대시보드**로 제공하는 투자용 트래커. 상단 탭: **비교 / Anthropic / OpenAI**(기본=비교).
 
 > ⚠️ **Revenue Run-rate ≠ 회계상 연간 매출.** 공식/추정 시계열은 절대 섞지 않고 분리 표시합니다.
+> 월 매출을 12배 한 **파생 연환산값**은 공식 ARR 로 표시하지 않습니다(별도 마커).
 > 숫자는 원문·근거문장이 확인된 것만 확정하며, 검증 못한 값은 `needs_review` 로 남깁니다.
+
+## 다중 회사 구조
+- `companies` 테이블 + 관련 8개 테이블 `company_id` FK. 기존 Anthropic 데이터는 migration 으로 보존.
+- 회사별 수집 설정: `config/companies.yml`(검색어·소스·mention_terms). anthropic 은 `config/sources.yml` 레거시 폴백.
+- content_hash·semantic_key 에 회사 slug 포함 → 서로 다른 회사의 같은 숫자가 중복 처리되지 않음.
+- metric_type 세분화: `arr · revenue_run_rate · monthly_revenue · derived_annualized_revenue · product_arr · target · valuation · active_users · paid_subscribers · business_customers`.
+- CLI 회사 지정: `python -m tracker collect --company openai|anthropic|all`, `add-manual --company ...`.
+
+## repo 이름 변경 절차(후속, 지금은 미실행)
+후보명 **`frontier-ai-runrate-tracker`**. 이름/리모트는 기능·테스트 안정화 후 변경한다. 변경 시 **함께 수정**:
+1. GitHub repo rename → `git remote set-url origin git@github.com:<owner>/frontier-ai-runrate-tracker.git`
+2. **Vite base path** (`frontend/vite.config.ts` 의 `base`)를 `/frontier-ai-runrate-tracker/` 로.
+3. **GitHub Actions** (`.github/workflows/deploy.yml`)의 경로·아티팩트 참조 확인.
+4. **GitHub Pages URL** 변경 반영: `https://<owner>.github.io/frontier-ai-runrate-tracker/`.
+5. README·문서의 URL, launchd/scripts 경로(`~/market-bots/anthropic-runrate-tracker`) 갱신.
 
 ## 구조
 ```

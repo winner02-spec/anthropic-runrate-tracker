@@ -47,7 +47,15 @@ def test_target_progress():
 
 
 def test_product_contribution_date_mismatch():
-    pc = calc.product_contribution([OFF2], [{"product": "Claude Code", "value_usd_bn": 2.5,
-                                             "as_of_date": "2026-02-12"}])
+    pc = calc.product_contribution([OFF2], [{"product": "Claude Code", "metric_name": "revenue_run_rate",
+                                             "value_usd_bn": 2.5, "as_of_date": "2026-02-12"}])
     assert pc[0]["share_pct"] == round(2.5 / 47 * 100, 1)
     assert pc[0]["date_mismatch"] is True
+
+
+def test_product_contribution_non_revenue_no_share():
+    # 사용자수·구독자수 등 비매출 지표는 전사 대비 $ share 를 계산하지 않는다
+    pc = calc.product_contribution([OFF2], [{"product": "ChatGPT", "metric_name": "active_users",
+                                             "value_usd_bn": 0.9, "as_of_date": "2026-02-12"}])
+    assert pc[0]["share_pct"] is None
+    assert pc[0]["is_revenue"] is False

@@ -21,6 +21,29 @@ def _load_sources() -> dict:
     return yaml.safe_load(config.SOURCES_YML.read_text(encoding="utf-8")) or {}
 
 
+def _companies_for_collect(conn, company: str | None):
+    """수집 대상 회사 목록 → [(slug, cfg, company_id)]. company=None/all 이면 전 회사.
+    회사별 sources/keywords 는 companies.yml 우선, 없으면 anthropic 은 sources.yml(레거시)."""
+    reg = config.companies_config()
+    slugs = list(reg.keys()) if company in (None, "all", "") else [company]
+    out = []
+    legacy = None
+    for slug in slugs:
+        cfg = dict(reg.get(slug) or {})
+        if not cfg.get("sources"):
+            # 레거시 폴백: anthropic 은 config/sources.yml 사용
+            if slug == "anthropic":
+                legacy = legacy if legacy is not None else _load_sources()
+                cfg.setdefault("sources", legacy.get("sources", []))
+                cfg.setdefault("options", legacy.get("options", {}))
+                cfg.setdefault("keywords", legacy.get("keywords", []))
+        comp = config.companies_config().get(slug, {})
+        cid = db.ensure_company(conn, slug, comp.get("display_name") or slug.title(),
+                                comp.get("official_domain"))
+        out.append((slug, cfg, cid))
+    return out
+
+
 def _collect_from_source(src: dict, opts: dict) -> list[Document]:
     typ = src.get("type")
     name = src.get("name", typ)
@@ -71,14 +94,14 @@ def _maybe_fetch_text_cached(conn, doc: Document, opts: dict):
     return doc.text
 
 
-def _existing_official_semantic(conn) -> set:
-    """이미 확정된 공식 포인트의 semantic_key 집합(재인용 중복 방지용)."""
+def _existing_official_semantic(conn, slug: str, company_id: int | None) -> set:
+    """해당 회사의 이미 확정된 공식 포인트 semantic_key 집합(재인용 중복 방지용)."""
     from tracker import dedup
     keys = set()
-    for r in db.fetchall(conn, "SELECT * FROM runrate_updates WHERE status=? AND is_official=1",
-                         (config.STATUS_CONFIRMED,)):
+    for r in db.fetchall(conn, "SELECT * FROM runrate_updates WHERE status=? AND is_official=1 "
+                         "AND company_id IS ?", (config.STATUS_CONFIRMED, company_id)):
         d = dict(r)
-        keys.add(dedup.semantic_key(d["metric_scope"], d["metric_type"], d["value_low_usd_bn"],
+        keys.add(dedup.semantic_key(slug, d["metric_scope"], d["metric_type"], d["value_low_usd_bn"],
                                     d["value_high_usd_bn"], d["qualifier"], d["as_of_end"],
                                     d["is_official"], d["is_estimate"], d["is_target"]))
     return keys
@@ -96,7 +119,7 @@ def _within_recent_days(published_at, days: int) -> bool:
         return True
 
 
-def _register_source_candidate(conn, url: str, relevant: bool) -> None:
+def _register_source_candidate(conn, url: str, relevant: bool, company_id: int | None = None) -> None:
     """discovery: sources.yml 에 없는 도메인을 source_candidates 에 등록(자동 승격 금지)."""
     from tracker.classifiers.source_tier import domain_of, classify_tier
     dom = domain_of(url)
@@ -107,91 +130,94 @@ def _register_source_candidate(conn, url: str, relevant: bool) -> None:
     now = db.now_kst()
     conn.execute(
         "INSERT INTO source_candidates(domain, source_name, first_seen_at, last_seen_at, "
-        "discovery_count, relevant_article_count, status) VALUES(?,?,?,?,1,?, 'candidate') "
+        "discovery_count, relevant_article_count, status, company_id) VALUES(?,?,?,?,1,?, 'candidate', ?) "
         "ON CONFLICT(domain) DO UPDATE SET last_seen_at=excluded.last_seen_at, "
         "discovery_count=discovery_count+1, "
         "relevant_article_count=relevant_article_count+excluded.relevant_article_count",
-        (dom, dom, now, now, 1 if relevant else 0))
+        (dom, dom, now, now, 1 if relevant else 0, company_id))
     conn.commit()
 
 
-def run_collect(conn, mode: str = "daily", dry_run: bool = False) -> dict:
+def run_collect(conn, mode: str = "daily", dry_run: bool = False,
+                company: str | None = None) -> dict:
+    """회사별 수집 오케스트레이션(company=None/all 이면 전 회사)."""
     from tracker import dedup
-    data = _load_sources()
-    opts = data.get("options", {})
     settings = config.settings()
     recent_days = int(settings.get("collect", {}).get("recent_days", 7))
-    sources = [s for s in data.get("sources", []) if s.get("enabled", True)]
     started = db.now_kst()
     searched, errors = [], []
     docs_found = new_candidates = confirmed = duplicates = skipped_cached = 0
-    seen_semantic = _existing_official_semantic(conn)   # 대표 공식원문 이후 재인용은 supporting
 
-    for src in sources:
-        searched.append(src.get("name"))
-        try:
-            docs = _collect_from_source(src, opts)
-        except Exception as e:  # 소스 격리
-            errors.append(f"{src.get('name')}: {repr(e)[:160]}")
-            continue
-        for doc in docs:
-            # daily: 최근 N일만
-            if mode == "daily" and not _within_recent_days(doc.published_at, recent_days):
-                continue
-            docs_found += 1
+    for slug, cfg, cid in _companies_for_collect(conn, company):
+        opts = cfg.get("options", {})
+        sources = [s for s in cfg.get("sources", []) if s.get("enabled", True)]
+        comp = config.companies_config().get(slug, {})
+        display = comp.get("display_name") or slug.title()
+        mention_terms = tuple(t.lower() for t in (comp.get("mention_terms") or [slug, display]))
+        seen_semantic = _existing_official_semantic(conn, slug, cid)
+        for src in sources:
+            searched.append(f"{slug}:{src.get('name')}")
             try:
-                text = _maybe_fetch_text_cached(conn, doc, opts)
-                if text is _CACHED:
-                    skipped_cached += 1
-                    continue   # ETag/Last-Modified/content_hash 동일 → 재분석 스킵(토큰 절감)
-                cands = build_candidates(title=doc.title, url=doc.url, text=text,
-                                         published_at=doc.published_at,
-                                         source_name=doc.source_name, tier=doc.tier or "D")
-            except Exception as e:  # 문서 격리
-                errors.append(f"doc {doc.url[:60]}: {repr(e)[:120]}")
+                docs = _collect_from_source(src, opts)
+            except Exception as e:  # 소스 격리
+                errors.append(f"{slug}:{src.get('name')}: {repr(e)[:160]}")
                 continue
-            if mode == "discovery":
-                # 새 도메인 등록만(숫자 자동확정 안 함). 후보는 review 로.
-                _register_source_candidate(conn, doc.url, relevant=bool(cands))
-                for c in cands:
-                    c.status = config.STATUS_NEEDS_REVIEW
-            for c in cands:
-                if db.exists_hash(conn, "runrate_updates", c.content_hash):
-                    duplicates += 1
+            for doc in docs:
+                if mode == "daily" and not _within_recent_days(doc.published_at, recent_days):
                     continue
-                # 재인용 중복: 같은 공식 수치(값·기준일)면 대표 1개만 확정, 나머지는 supporting(needs_review)
-                if c.status == config.STATUS_CONFIRMED and c.is_official:
-                    sk = dedup.semantic_key(c.metric_scope, c.metric_type, c.value_low_usd_bn,
-                                            c.value_high_usd_bn, c.qualifier, c.as_of_end,
-                                            c.is_official, c.is_estimate, c.is_target)
-                    if sk in seen_semantic:
-                        c.status = config.STATUS_NEEDS_REVIEW   # supporting source
-                        c.source_type = (c.source_type or "") + "|supporting"
-                    else:
-                        seen_semantic.add(sk)
-                # 피드백 재사용: 과거 오분류/거절 이력 있는 도메인은 자동확정 막고 review 로
-                if c.status == config.STATUS_CONFIRMED:
-                    from tracker.classifiers.source_tier import domain_of
-                    from tracker.classifiers import feedback
-                    if feedback.domain_should_review(conn, domain_of(c.source_url or "")):
+                docs_found += 1
+                try:
+                    text = _maybe_fetch_text_cached(conn, doc, opts)
+                    if text is _CACHED:
+                        skipped_cached += 1
+                        continue
+                    cands = build_candidates(title=doc.title, url=doc.url, text=text,
+                                             published_at=doc.published_at,
+                                             source_name=doc.source_name, tier=doc.tier or "D",
+                                             company=slug, company_id=cid,
+                                             company_display=display, mention_terms=mention_terms)
+                except Exception as e:  # 문서 격리
+                    errors.append(f"doc {doc.url[:60]}: {repr(e)[:120]}")
+                    continue
+                if mode == "discovery":
+                    _register_source_candidate(conn, doc.url, relevant=bool(cands), company_id=cid)
+                    for c in cands:
                         c.status = config.STATUS_NEEDS_REVIEW
-                        c.source_type = (c.source_type or "") + "|feedback_review"
-                if dry_run:
+                for c in cands:
+                    if db.exists_hash(conn, "runrate_updates", c.content_hash):
+                        duplicates += 1
+                        continue
+                    if c.status == config.STATUS_CONFIRMED and c.is_official:
+                        sk = dedup.semantic_key(slug, c.metric_scope, c.metric_type, c.value_low_usd_bn,
+                                                c.value_high_usd_bn, c.qualifier, c.as_of_end,
+                                                c.is_official, c.is_estimate, c.is_target)
+                        if sk in seen_semantic:
+                            c.status = config.STATUS_NEEDS_REVIEW   # supporting source
+                            c.source_type = (c.source_type or "") + "|supporting"
+                        else:
+                            seen_semantic.add(sk)
+                    if c.status == config.STATUS_CONFIRMED:
+                        from tracker.classifiers.source_tier import domain_of
+                        from tracker.classifiers import feedback
+                        if feedback.domain_should_review(conn, domain_of(c.source_url or "")):
+                            c.status = config.STATUS_NEEDS_REVIEW
+                            c.source_type = (c.source_type or "") + "|feedback_review"
+                    if dry_run:
+                        new_candidates += 1
+                        continue
+                    row = c.to_row()
+                    now = db.now_kst()
+                    row["created_at"] = now
+                    row["updated_at"] = now
+                    rid = db.insert(conn, "runrate_updates", row)
+                    if rid is None:
+                        duplicates += 1
+                        continue
                     new_candidates += 1
-                    continue
-                row = c.to_row()
-                now = db.now_kst()
-                row["created_at"] = now
-                row["updated_at"] = now
-                rid = db.insert(conn, "runrate_updates", row)
-                if rid is None:
-                    duplicates += 1
-                    continue
-                new_candidates += 1
-                if c.status == config.STATUS_CONFIRMED:
-                    confirmed += 1
-                else:
-                    _enqueue_review(conn, rid, c, now)
+                    if c.status == config.STATUS_CONFIRMED:
+                        confirmed += 1
+                    else:
+                        _enqueue_review(conn, rid, c, now, slug, cid)
 
     finished = db.now_kst()
     if not dry_run:
@@ -208,12 +234,14 @@ def run_collect(conn, mode: str = "daily", dry_run: bool = False) -> dict:
             "api_calls": 0, "est_tokens": 0, "errors": errors, "searched": searched}
 
 
-def _enqueue_review(conn, runrate_id: int, c, now: str) -> None:
+def _enqueue_review(conn, runrate_id: int, c, now: str, slug: str = "anthropic",
+                    company_id: int | None = None) -> None:
     from tracker import dedup
-    ch = dedup.content_hash(c.source_url or "", "rq", c.published_at,
-                            c.value_low_usd_bn, c.value_high_usd_bn, c.qualifier,
-                            c.evidence_text)
+    ch = dedup.company_content_hash(slug, c.source_url or "", "rq", c.published_at,
+                                    c.value_low_usd_bn, c.value_high_usd_bn, c.qualifier,
+                                    c.evidence_text)
     db.insert(conn, "review_queue", {
+        "company_id": company_id,
         "runrate_update_id": runrate_id, "kind": "runrate",
         "found_expression": c.original_value, "classification": c.source_type,
         "source_name": c.source_name, "source_url": c.source_url, "source_tier": c.source_tier,

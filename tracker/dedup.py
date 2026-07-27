@@ -36,13 +36,26 @@ def _sig(*parts) -> str:
 
 def content_hash(url: str, title: str, published_at, value_low, value_high, qualifier,
                  evidence_text: str = "") -> str:
-    """기사+추출 단위 고유값(재수집/재추출 중복 방지)."""
+    """기사+추출 단위 고유값(재수집/재추출 중복 방지). 회사 스코프는 scoped_hash 로 감싼다."""
     return _sig(canonical_url(url), normalize_title(title), published_at,
                 value_low, value_high, qualifier, normalize_title(evidence_text)[:120])
 
 
-def semantic_key(metric_scope, metric_type, value_low, value_high, qualifier,
+def scoped_hash(slug: str, base_hash: str) -> str:
+    """회사 스코프 래핑: 서로 다른 회사의 동일 기사/숫자가 같은 hash 로 충돌하지 않도록
+    기존 base content_hash 를 slug 로 한 번 더 감싼다(원자료 재구성 불필요 → migration 안전)."""
+    return _sig(slug or "", base_hash)
+
+
+def company_content_hash(slug: str, url: str, title: str, published_at, value_low,
+                         value_high, qualifier, evidence_text: str = "") -> str:
+    """회사 스코프 content_hash(모든 write 경로 공용)."""
+    return scoped_hash(slug, content_hash(url, title, published_at, value_low,
+                                          value_high, qualifier, evidence_text))
+
+
+def semantic_key(slug, metric_scope, metric_type, value_low, value_high, qualifier,
                  as_of_end, is_official, is_estimate, is_target) -> str:
-    """데이터포인트 동일성(같은 발표 재인용 중복 방지)."""
-    return _sig(metric_scope, metric_type, value_low, value_high, qualifier,
+    """데이터포인트 동일성(같은 발표 재인용 중복 방지). 회사(slug)별로 분리."""
+    return _sig(slug or "", metric_scope, metric_type, value_low, value_high, qualifier,
                 as_of_end, int(bool(is_official)), int(bool(is_estimate)), int(bool(is_target)))

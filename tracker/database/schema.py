@@ -9,19 +9,29 @@
 """
 from __future__ import annotations
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 DDL = """
 CREATE TABLE IF NOT EXISTS schema_meta (
     key TEXT PRIMARY KEY, value TEXT
 );
 
+-- 다중 회사 레지스트리(Anthropic/OpenAI …). 관련 테이블은 company_id 로 이 표를 참조.
+CREATE TABLE IF NOT EXISTS companies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug            TEXT UNIQUE NOT NULL,   -- anthropic | openai
+    display_name    TEXT NOT NULL,          -- Anthropic | OpenAI
+    official_domain TEXT,                   -- anthropic.com | openai.com
+    created_at      TEXT
+);
+
 -- 핵심: run-rate/매출 업데이트 (공식·보도·추정·목표 모두 여기, 플래그로 구분)
 CREATE TABLE IF NOT EXISTS runrate_updates (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    company            TEXT NOT NULL DEFAULT 'Anthropic',
+    company            TEXT NOT NULL DEFAULT 'Anthropic',  -- (레거시, 표시용) 권위값은 company_id
+    company_id         INTEGER REFERENCES companies(id),
     metric_scope       TEXT NOT NULL,      -- company | product
-    metric_type        TEXT NOT NULL,      -- revenue_run_rate 등
+    metric_type        TEXT NOT NULL,      -- arr|revenue_run_rate|monthly_revenue|derived_annualized_revenue|product_arr|target 등
     value_low_usd_bn   REAL,               -- USD billion 표준(하단)
     value_high_usd_bn  REAL,               -- 범위 상단(단일값이면 NULL)
     original_value     TEXT,               -- 원문 숫자 문자열(보존)
@@ -50,6 +60,10 @@ CREATE TABLE IF NOT EXISTS runrate_updates (
     source_note        TEXT,   -- 원문 URL 없을 때 출처 설명(예: 사용자 제공 이미지 경로)
     evidence_note      TEXT,   -- 원문 evidence 미확보 시 근거 메모(원문 문장으로 저장 금지)
     source_locator     TEXT,   -- 기사 제목/식별자 등 위치 힌트
+    -- 파생 observation(예: 월매출×12). 공식 ARR 로 표시하지 않음(is_official=0 강제).
+    is_derived         INTEGER DEFAULT 0,
+    calculation_method TEXT,               -- 예: monthly_revenue_x12
+    derived_from_id    INTEGER,            -- 원본 observation runrate_updates.id
     supersedes_id      INTEGER,
     content_hash       TEXT UNIQUE,
     created_at         TEXT,
@@ -59,6 +73,7 @@ CREATE TABLE IF NOT EXISTS runrate_updates (
 -- 밸류에이션(펀딩 라운드)
 CREATE TABLE IF NOT EXISTS valuation_updates (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id         INTEGER REFERENCES companies(id),
     as_of_date         TEXT,               -- 기준일
     published_at       TEXT,               -- 발표일
     money_basis        TEXT,               -- pre_money | post_money
@@ -78,6 +93,7 @@ CREATE TABLE IF NOT EXISTS valuation_updates (
 -- 제품별 지표(Claude Code 등)
 CREATE TABLE IF NOT EXISTS product_metrics (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id         INTEGER REFERENCES companies(id),
     product            TEXT NOT NULL,       -- Claude Code 등
     metric_name        TEXT NOT NULL,       -- revenue_run_rate 등
     value_usd_bn       REAL,
@@ -99,6 +115,7 @@ CREATE TABLE IF NOT EXISTS product_metrics (
 -- 차트 주석용 이벤트(모델 출시·가격변경·대형고객·파트너십·펀딩·클라우드계약 등)
 CREATE TABLE IF NOT EXISTS source_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id         INTEGER REFERENCES companies(id),
     event_date         TEXT,
     event_type         TEXT,                -- model_release|pricing|customer|partnership|funding|cloud_deal
     title              TEXT,
@@ -128,6 +145,7 @@ CREATE TABLE IF NOT EXISTS ingestion_runs (
 -- 자동 추출했지만 확정 못한 후보(검토 대기)
 CREATE TABLE IF NOT EXISTS review_queue (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id         INTEGER REFERENCES companies(id),
     runrate_update_id  INTEGER,             -- 연결된 runrate_updates.id (있으면)
     kind               TEXT DEFAULT 'runrate', -- runrate|valuation|product|event
     found_expression   TEXT,                -- 발견 원문 표현
@@ -149,6 +167,7 @@ CREATE TABLE IF NOT EXISTS review_queue (
 -- discovery: sources.yml 에 없는 새 도메인 후보(자동 승격 금지)
 CREATE TABLE IF NOT EXISTS source_candidates (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id             INTEGER REFERENCES companies(id),
     domain                 TEXT UNIQUE,
     source_name            TEXT,
     first_seen_at          TEXT,
@@ -164,6 +183,7 @@ CREATE TABLE IF NOT EXISTS source_candidates (
 -- 사용자 승인/수정/거절 피드백(재훈련 아님; 이후 분류에 참고)
 CREATE TABLE IF NOT EXISTS classification_feedback (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id             INTEGER REFERENCES companies(id),
     candidate_id           INTEGER,
     source_domain          TEXT,
     original_classification TEXT,
@@ -181,6 +201,7 @@ CREATE TABLE IF NOT EXISTS classification_feedback (
 -- 이상 탐지 큐(자동 삭제/수정 금지, 사람이 검토)
 CREATE TABLE IF NOT EXISTS anomaly_queue (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id             INTEGER REFERENCES companies(id),
     anomaly_type           TEXT,             -- stale_90d|estimate_gap|estimate_drop|accel|lower_official|date_inversion|same_date_conflict|qualifier_simplified|official_estimate_mix|requote_dup
     detail                 TEXT,
     related_id             INTEGER,
@@ -199,6 +220,7 @@ CREATE TABLE IF NOT EXISTS fetch_cache (
 
 CREATE INDEX IF NOT EXISTS idx_rr_scope ON runrate_updates(metric_scope, metric_type, status);
 CREATE INDEX IF NOT EXISTS idx_rr_official ON runrate_updates(is_official, as_of_end);
+-- company_id 인덱스는 컬럼 ALTER 이후 db._migrate_companies 에서 생성(순서 의존).
 CREATE INDEX IF NOT EXISTS idx_rq_status ON review_queue(status);
 CREATE INDEX IF NOT EXISTS idx_sc_status ON source_candidates(status);
 CREATE INDEX IF NOT EXISTS idx_anom_status ON anomaly_queue(status);

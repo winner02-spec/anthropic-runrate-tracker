@@ -1,15 +1,16 @@
 import { useState } from "react";
-import type { Dashboard, Point } from "../types";
+import type { CompanyPayload, Point } from "../types";
 import { usdBn, pointValueText, pointDate, qualifierLabel } from "../format";
 import { dateToUtcEpoch, epochToYmd } from "../dateutil";
 
-// 시계열 종류별 색/스타일 — 공식·보도·외부추정을 하나의 선으로 연결하지 않는다.
+// 시계열 종류별 색/스타일 — 공식·보도·추정·파생을 하나의 선으로 연결하지 않는다.
 const SERIES = {
   official_current: { color: "var(--official)", label: "공식(현재)", dashed: false, line: true },
   official_retro: { color: "var(--official)", label: "공식(회고)", dashed: false, line: false },
   reported: { color: "var(--reported)", label: "주요 매체 보도", dashed: true, line: true },
   tickertrends: { color: "var(--estimate)", label: "TickerTrends 추정", dashed: true, line: true },
   yipit: { color: "#d98a00", label: "Yipit 추정", dashed: true, line: false },
+  derived: { color: "#8b5cf6", label: "파생(월매출×12)", dashed: true, line: false },
 } as const;
 type SKind = keyof typeof SERIES;
 
@@ -17,19 +18,21 @@ const VS_BADGE: Record<string, string> = {
   verified: "검증완료", corroborated: "간접 확인", provisional: "원문 미확인", needs_review: "검토대기",
 };
 
-type Filter = "all" | "official" | "official_reported" | "estimates" | "target";
+type Filter = "all" | "official" | "official_reported" | "estimates" | "derived" | "target";
 const FILTERS: Array<[Filter, string]> = [
   ["all", "전체"], ["official", "공식만"], ["official_reported", "공식+매체"],
-  ["estimates", "외부추정 포함"], ["target", "목표 포함"],
+  ["estimates", "외부추정 포함"], ["derived", "파생값 포함"], ["target", "목표 포함"],
 ];
 
 function visibleKinds(f: Filter): Set<SKind> {
   if (f === "official") return new Set<SKind>(["official_current", "official_retro"]);
   if (f === "official_reported") return new Set<SKind>(["official_current", "official_retro", "reported"]);
-  return new Set<SKind>(["official_current", "official_retro", "reported", "tickertrends", "yipit"]);
+  if (f === "derived") return new Set<SKind>(["official_current", "official_retro", "reported", "derived"]);
+  return new Set<SKind>(["official_current", "official_retro", "reported", "tickertrends", "yipit", "derived"]);
 }
 
 function classify(p: Point): SKind | null {
+  if (p.is_derived) return "derived";
   const src = (p.source_name || "").toLowerCase();
   if (p.is_official) return p.source_type === "official_retrospective" ? "official_retro" : "official_current";
   if (p.is_estimate) {
@@ -43,7 +46,7 @@ function classify(p: Point): SKind | null {
 
 interface PP { x: number; y: number; p: Point; kind: SKind; }
 
-export default function RunrateChart({ data }: { data: Dashboard }) {
+export default function RunrateChart({ cp }: { cp: CompanyPayload }) {
   const [logScale, setLog] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [hover, setHover] = useState<PP | null>(null);
@@ -51,18 +54,18 @@ export default function RunrateChart({ data }: { data: Dashboard }) {
   const showTarget = filter === "all" || filter === "target";
   const vis = visibleKinds(filter);
 
-  // 모든 포인트 → 종류별 분류
+  // 공식·보도·추정·파생 포인트 → 종류별 분류(월매출은 연환산 축과 스케일 달라 차트에서 제외)
   const allPts: Point[] = [
-    ...data.series.official, ...data.series.reported, ...data.series.estimated,
+    ...cp.series.official, ...cp.series.reported, ...cp.series.estimated, ...cp.series.derived,
   ];
   const grouped: Record<SKind, Point[]> = {
-    official_current: [], official_retro: [], reported: [], tickertrends: [], yipit: [],
+    official_current: [], official_retro: [], reported: [], tickertrends: [], yipit: [], derived: [],
   };
   for (const p of allPts) {
     const k = classify(p);
     if (k) grouped[k].push(p);
   }
-  const targets = data.series.target;
+  const targets = cp.series.target;
 
   const vals: number[] = [];
   (Object.keys(grouped) as SKind[]).forEach((k) => {
@@ -81,7 +84,7 @@ export default function RunrateChart({ data }: { data: Dashboard }) {
 
   const dates: number[] = [];
   allPts.forEach((p) => { const t = dateToUtcEpoch(p.as_of_end); if (t) dates.push(t); });
-  data.events.forEach((e) => { const t = dateToUtcEpoch(e.event_date); if (t) dates.push(t); });
+  cp.events.forEach((e) => { const t = dateToUtcEpoch(e.event_date); if (t) dates.push(t); });
 
   const W = 940, H = 380, m = { t: 16, r: 18, b: 34, l: 54 };
   const minT = Math.min(...dates), maxT = Math.max(...dates) || minT + 1;
@@ -118,7 +121,7 @@ export default function RunrateChart({ data }: { data: Dashboard }) {
       <Filters filter={filter} setFilter={setFilter} />
       <div className="chartwrap">
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img"
-             aria-label="Anthropic Revenue Run-rate 시계열">
+             aria-label={`${cp.display_name} Revenue Run-rate 시계열`}>
           {grid.map((v, i) => (
             <g key={i}>
               <line x1={m.l} x2={W - m.r} y1={Y(v)} y2={Y(v)} stroke="var(--line)" />
@@ -128,14 +131,13 @@ export default function RunrateChart({ data }: { data: Dashboard }) {
           {showTarget && targets.map((tg, i) => tg.value_low_usd_bn != null && (
             <g key={"t" + i}>
               <line x1={m.l} x2={W - m.r} y1={Y(tg.value_low_usd_bn)} y2={Y(tg.value_low_usd_bn)}
-                    stroke={SERIES.official_current.color === tg.source_type ? "var(--target)" : "var(--target)"}
-                    strokeDasharray="7 4" opacity="0.8" />
+                    stroke="var(--target)" strokeDasharray="7 4" opacity="0.8" />
               <text x={W - m.r} y={Y(tg.value_low_usd_bn) - 4} textAnchor="end" fontSize="10" fill="var(--target)">
                 목표 {usdBn(tg.value_low_usd_bn, 0)}
               </text>
             </g>
           ))}
-          {data.events.map((e, i) => { const t = dateToUtcEpoch(e.event_date); return t ? (
+          {cp.events.map((e, i) => { const t = dateToUtcEpoch(e.event_date); return t ? (
             <line key={"e" + i} x1={X(t)} x2={X(t)} y1={m.t} y2={H - m.b} stroke="var(--muted)" strokeDasharray="2 3" opacity="0.4" />
           ) : null; })}
           {plotted.map(({ kind, pp }) => pp.length > 0 && (
@@ -145,7 +147,13 @@ export default function RunrateChart({ data }: { data: Dashboard }) {
                       strokeDasharray={SERIES[kind].dashed ? "6 4" : undefined}
                       d={pp.map((q, i) => `${i ? "L" : "M"}${q.x},${q.y}`).join(" ")} />
               )}
-              {pp.map((q, i) => (
+              {pp.map((q, i) => kind === "derived" ? (
+                // 파생값 = 회전 사각형(다이아몬드) 마커로 공식과 구분
+                <rect key={i} x={q.x - 4} y={q.y - 4} width={8} height={8}
+                      transform={`rotate(45 ${q.x} ${q.y})`} fill="var(--card)"
+                      stroke={SERIES[kind].color} strokeWidth="2"
+                      onMouseEnter={() => setHover(q)} onMouseLeave={() => setHover(null)} />
+              ) : (
                 <circle key={i} cx={q.x} cy={q.y} r={kind === "official_current" ? 5 : 4}
                         fill={kind === "official_current" ? SERIES[kind].color : "var(--card)"}
                         stroke={SERIES[kind].color} strokeWidth="2"
@@ -166,6 +174,7 @@ export default function RunrateChart({ data }: { data: Dashboard }) {
             : (hover.p.source_name ?? "—")}
           {" "}· 신뢰도 {hover.p.confidence_score ?? "—"}
           {hover.kind === "official_retro" ? " · 회고값" : ""}
+          {hover.kind === "derived" ? " · 월 매출을 12배 한 계산값(공식 ARR 아님)" : ""}
           {" "}· <b>{VS_BADGE[hover.p.verification_status || "needs_review"]}</b>
           {hover.p.verification_status === "provisional" && hover.p.source_note ? ` · ${hover.p.source_note}` : ""}
         </div>
@@ -175,7 +184,7 @@ export default function RunrateChart({ data }: { data: Dashboard }) {
           <span key={k}><i style={{ background: SERIES[k].color }} />{SERIES[k].label}</span>
         ))}
         {showTarget && <span><i style={{ background: "var(--target)" }} />목표</span>}
-        <span style={{ color: "var(--muted)" }}>· 공식·보도·추정은 선을 연결하지 않음</span>
+        <span style={{ color: "var(--muted)" }}>· 공식·보도·추정·파생은 선을 연결하지 않음</span>
       </div>
     </div>
   );

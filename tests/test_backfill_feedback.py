@@ -43,7 +43,8 @@ def test_estimates_image_only_provisional(tmp_path, monkeypatch):
     backfill.run_backfill(conn)
     row = db.fetchone(conn, "SELECT verification_status, is_estimate FROM runrate_updates WHERE value_low_usd_bn=54.6")
     assert row["verification_status"] == "provisional" and row["is_estimate"] == 1
-    payload = dashboard.build_payload(conn)
+    cid = db.company_id_by_slug(conn, "anthropic")
+    payload = dashboard.build_payload(conn, cid, "anthropic", "Anthropic")
     assert payload["series"]["official"] == []                    # 공식선 미포함
     assert len(payload["series"]["estimated"]) == 1               # 외부추정선에는 표시
     assert payload["series"]["estimated"][0]["verification_status"] == "provisional"

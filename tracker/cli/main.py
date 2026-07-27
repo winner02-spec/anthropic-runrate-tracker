@@ -40,7 +40,8 @@ def cmd_seed(args) -> int:
 
 def cmd_collect(args) -> int:
     conn = _conn()
-    res = ingest.run_collect(conn, mode=args.mode, dry_run=args.dry_run)
+    res = ingest.run_collect(conn, mode=args.mode, dry_run=args.dry_run,
+                             company=getattr(args, "company", None))
     print(f"[collect mode={args.mode}]", json.dumps({k: res[k] for k in
           ("docs_found", "new_candidates", "confirmed", "duplicates", "skipped_cached",
            "api_calls", "est_tokens")}, ensure_ascii=False))
@@ -208,9 +209,14 @@ def cmd_add_manual(args) -> int:
     status = (config.STATUS_CONFIRMED if (is_official and source_url and evidence)
               else config.STATUS_NEEDS_REVIEW)
     now = db.now_kst()
-    ch = dedup.content_hash(source_url or "", "manual", published, value, None,
-                            args.qualifier or "exact", evidence or "")
-    row = {"company": "Anthropic", "metric_scope": config.SCOPE_COMPANY,
+    slug = (getattr(args, "company", None) or "anthropic").strip().lower()
+    comp = config.companies_config().get(slug, {})
+    cid = db.ensure_company(conn, slug, comp.get("display_name") or slug.title(),
+                            comp.get("official_domain"))
+    ch = dedup.company_content_hash(slug, source_url or "", "manual", published, value, None,
+                                    args.qualifier or "exact", evidence or "")
+    row = {"company": comp.get("display_name") or slug.title(), "company_id": cid,
+           "metric_scope": config.SCOPE_COMPANY,
            "metric_type": config.METRIC_RUNRATE, "value_low_usd_bn": value,
            "value_high_usd_bn": None, "original_value": args.original or f"${value}B",
            "original_currency": "USD", "original_unit": "billion",
@@ -259,19 +265,25 @@ def cmd_status(args) -> int:
         return r[0] if r else 0
 
     conf = (config.STATUS_CONFIRMED,)
-    n_official = c("SELECT COUNT(*) FROM runrate_updates WHERE status=? AND is_official=1", conf)
-    n_estimate = c("SELECT COUNT(*) FROM runrate_updates WHERE status=? AND is_estimate=1", conf)
-    n_target = c("SELECT COUNT(*) FROM runrate_updates WHERE status=? AND is_target=1", conf)
-    n_review = c("SELECT COUNT(*) FROM review_queue WHERE status='pending'")
-    n_val = c("SELECT COUNT(*) FROM valuation_updates")
-    n_prod = c("SELECT COUNT(*) FROM product_metrics")
-    n_evt = c("SELECT COUNT(*) FROM source_events")
     last = db.fetchone(conn, "SELECT finished_at FROM ingestion_runs ORDER BY id DESC LIMIT 1")
-    print("Anthropic Revenue Run-rate Tracker — 상태")
+    print("Frontier AI Revenue Tracker — 상태")
     print(f"  DB: {config.DB_PATH}")
-    print(f"  공식(confirmed): {n_official}  · 추정: {n_estimate}  · 목표: {n_target}")
-    print(f"  검토대기: {n_review}")
-    print(f"  밸류에이션: {n_val}  · 제품지표: {n_prod}  · 이벤트: {n_evt}")
+    for co in db.fetchall(conn, "SELECT id, slug, display_name FROM companies ORDER BY id"):
+        cid = co["id"]
+
+        def cc(sql):
+            r = db.fetchone(conn, sql, (cid,) + conf)
+            return r[0] if r else 0
+        n_official = cc("SELECT COUNT(*) FROM runrate_updates WHERE company_id=? AND status=? AND is_official=1 AND is_derived=0")
+        n_derived = c("SELECT COUNT(*) FROM runrate_updates WHERE company_id=? AND status=? AND is_derived=1", (cid,) + conf)
+        n_estimate = cc("SELECT COUNT(*) FROM runrate_updates WHERE company_id=? AND status=? AND is_estimate=1")
+        n_target = cc("SELECT COUNT(*) FROM runrate_updates WHERE company_id=? AND status=? AND is_target=1")
+        n_val = c("SELECT COUNT(*) FROM valuation_updates WHERE company_id=?", (cid,))
+        n_prod = c("SELECT COUNT(*) FROM product_metrics WHERE company_id=?", (cid,))
+        n_evt = c("SELECT COUNT(*) FROM source_events WHERE company_id=?", (cid,))
+        n_review = c("SELECT COUNT(*) FROM review_queue WHERE company_id=? AND status='pending'", (cid,))
+        print(f"  [{co['display_name']}] 공식 {n_official} · 파생 {n_derived} · 추정 {n_estimate} · 목표 {n_target} · "
+              f"밸류 {n_val} · 제품 {n_prod} · 이벤트 {n_evt} · 검토대기 {n_review}")
     print(f"  마지막 수집: {last[0] if last else '—'}")
     conn.close()
     return 0
@@ -284,6 +296,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("seed").set_defaults(func=cmd_seed)
     c = sub.add_parser("collect")
     c.add_argument("--mode", choices=["daily", "discovery"], default="daily")
+    c.add_argument("--company", default=None, help="slug(anthropic|openai) 또는 all(기본)")
     c.add_argument("--dry-run", action="store_true")
     c.set_defaults(func=cmd_collect)
     b = sub.add_parser("backfill")
@@ -301,7 +314,7 @@ def build_parser() -> argparse.ArgumentParser:
     u = sub.add_parser("add-url"); u.add_argument("url"); u.set_defaults(func=cmd_add_url)
     m = sub.add_parser("add-manual")
     for opt in ("--value", "--as-of", "--published-at", "--source-url", "--source-name",
-                "--evidence", "--qualifier", "--original"):
+                "--evidence", "--qualifier", "--original", "--company"):
         m.add_argument(opt)
     m.add_argument("--official", action="store_true")
     m.set_defaults(func=cmd_add_manual)

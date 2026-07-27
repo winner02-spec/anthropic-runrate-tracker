@@ -299,3 +299,105 @@ points:
     source_note: "사용자 제공(YipitData 인용 메모)"
     evidence_note: "약 $69.0B(2026-07-10) Yipit 추정으로 제공됨"
     confidence_score: 0.35
+
+  # ─────────────────────── OpenAI ───────────────────────
+  # ※ 검증상태 corroborated: 공식 URL 은 확인했으나 openai.com 페이지 직접 read 는 봇 차단(403)으로 미수행.
+  #    수치는 WebSearch 가 인덱싱한 공식 페이지 + 복수 매체 재인용으로 교차확인. 검색 요약을 원문 evidence_text 로 저장하지 않음(→ evidence_note).
+  #    출처: OpenAI "A business that scales with the value of intelligence"
+  #          https://openai.com/index/a-business-that-scales-with-the-value-of-intelligence/ (2026-01-18)
+  - company: openai
+    group: official
+    metric_type: arr
+    value_low_usd_bn: 2
+    qualifier: exact
+    as_of_start: "2023-01-01"
+    as_of_end: "2023-12-31"
+    date_precision: year
+    published_at: "2026-01-18"
+    source_name: "OpenAI (A business that scales with the value of intelligence)"
+    source_url: "https://openai.com/index/a-business-that-scales-with-the-value-of-intelligence/"
+    source_tier: A
+    source_type: official_retrospective
+    is_official: 1
+    verification_status: corroborated
+    verification_reason: "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인"
+    source_note: "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행."
+    evidence_note: "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님)."
+  - company: openai
+    group: official
+    metric_type: arr
+    value_low_usd_bn: 6
+    qualifier: exact
+    as_of_start: "2024-01-01"
+    as_of_end: "2024-12-31"
+    date_precision: year
+    published_at: "2026-01-18"
+    source_name: "OpenAI (A business that scales with the value of intelligence)"
+    source_url: "https://openai.com/index/a-business-that-scales-with-the-value-of-intelligence/"
+    source_tier: A
+    source_type: official_retrospective
+    is_official: 1
+    verification_status: corroborated
+    verification_reason: "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인"
+    source_note: "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행."
+    evidence_note: "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님)."
+  - company: openai
+    group: official
+    metric_type: arr
+    value_low_usd_bn: 20
+    qualifier: over
+    as_of_start: "2025-01-01"
+    as_of_end: "2025-12-31"
+    date_precision: year
+    published_at: "2026-01-18"
+    source_name: "OpenAI (A business that scales with the value of intelligence)"
+    source_url: "https://openai.com/index/a-business-that-scales-with-the-value-of-intelligence/"
+    source_tier: A
+    source_type: official_retrospective
+    is_official: 1
+    verification_status: corroborated
+    verification_reason: "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인"
+    source_note: "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행."
+    evidence_note: "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님)."
+  # 월 매출(관측, 현재값). 출처: OpenAI "OpenAI raises $122 billion to accelerate the next phase of AI"
+  #       https://openai.com/index/accelerating-the-next-phase-ai/ (2026-03-31)
+  - ref: oai_monthly
+    company: openai
+    group: official
+    metric_type: monthly_revenue
+    value_low_usd_bn: 2
+    qualifier: exact
+    as_of_start: "2026-03-31"
+    as_of_end: "2026-03-31"
+    date_precision: day
+    published_at: "2026-03-31"
+    source_name: "OpenAI (accelerating the next phase of AI)"
+    source_url: "https://openai.com/index/accelerating-the-next-phase-ai/"
+    source_tier: A
+    source_type: official_current
+    is_official: 1
+    verification_status: corroborated
+    verification_reason: "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+복수매체(CNBC/CoinDesk 등) 교차확인"
+    source_note: "OpenAI 공식 발표 URL 확인(WebSearch 인덱싱)+복수 매체 재인용. 페이지 직접 read 는 403 차단으로 미수행."
+    evidence_note: "월 매출 $2B 돌파(2026-03-31 발표) — 공식 페이지 인덱싱+CNBC/CoinDesk 등 재인용 교차확인. 이는 월 매출이며 ARR 아님."
+  # 파생(월매출×12). 공식 ARR 로 표시하지 않음(is_official 강제 0, 별도 마커).
+  - company: openai
+    group: derived
+    metric_type: derived_annualized_revenue
+    value_low_usd_bn: 24
+    qualifier: derived
+    is_derived: 1
+    calculation_method: monthly_revenue_x12
+    derived_from: oai_monthly
+    as_of_start: "2026-03-31"
+    as_of_end: "2026-03-31"
+    date_precision: day
+    published_at: "2026-03-31"
+    source_name: "OpenAI (월매출 ×12 파생)"
+    source_url: "https://openai.com/index/accelerating-the-next-phase-ai/"
+    source_tier: A
+    source_type: official_current
+    verification_status: corroborated
+    verification_reason: "월 매출 $2B 를 12배 한 연환산 계산값(공식 ARR 아님)"
+    source_note: "파생 계산값 — 원본은 corroborated 월매출 관측치."
+    evidence_note: "$2B/월 × 12 = $24B 연환산(파생 계산값 — 공식 ARR 로 표시하지 않음)."
