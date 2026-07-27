@@ -1,0 +1,28 @@
+[project]
+name = "anthropic-runrate-tracker"
+version = "0.1.0"
+description = "Anthropic Revenue Run-rate Tracker — 공식/추정 수급 수집·검증·대시보드"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31",
+    "feedparser>=6.0",
+    "PyYAML>=6.0",
+    "python-dateutil>=2.9",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "jsonschema>=4.21",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["tracker*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

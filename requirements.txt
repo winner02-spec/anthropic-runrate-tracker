@@ -1,0 +1,11 @@
+# Python 3.11+ 필수. (venv:  python3.11 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt)
+requests>=2.31
+feedparser>=6.0
+PyYAML>=6.0
+python-dateutil>=2.9
+beautifulsoup4>=4.12
+lxml>=5.0
+jsonschema>=4.21
+
+# 개발/테스트
+pytest>=8.0

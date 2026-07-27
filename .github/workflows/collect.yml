@@ -1,0 +1,36 @@
+name: Scheduled Collect (optional)
+
+# 스케줄 수집은 기본 비활성. 켜려면 repo Variables 에 ENABLE_SCHEDULED_COLLECT=true 설정.
+# (주 수집 방식은 Mac launchd. 이 워크플로우는 보조/옵션.)
+on:
+  schedule:
+    - cron: "30 21 * * *"   # 06:30 KST (UTC+9)
+  workflow_dispatch:
+
+jobs:
+  collect:
+    if: vars.ENABLE_SCHEDULED_COLLECT == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Collect + export
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_ENABLED: "false"
+        run: |
+          python -m tracker init
+          python -m tracker seed
+          python -m tracker collect
+          python -m tracker export
+      - name: Commit updated dashboard.json
+        run: |
+          git config user.name "runrate-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add frontend/public/data/dashboard.json
+          git commit -m "data: scheduled collect $(date -u +%F)" || echo "no changes"
+          git push || echo "push skipped"

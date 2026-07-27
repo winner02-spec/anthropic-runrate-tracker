@@ -1,0 +1,2 @@
+product,metric_name,value_usd_bn,qualifier,unit,as_of_date,date_precision,published_at,source_name,source_url,is_official,status,evidence_text,content_hash
+Claude Code,revenue_run_rate,2.5,over,billion,2026-02-12,day,2026-02-12,Anthropic (Series G announcement),https://www.anthropic.com/news/anthropic-raises-30-billion-series-g-funding-380-billion-post-money-valuation,1,confirmed,"Claude Code's run-rate revenue has grown to over $2.5 billion; this figure has more than doubled since the beginning of 2026.",

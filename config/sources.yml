@@ -1,0 +1,86 @@
+# 수집 출처 설정. 수집 로직과 분리 — 여기만 고치면 출처 추가/변경 가능.
+# V1 은 유료 검색 API 없이 동작(공개 RSS·Google News RSS·공식 뉴스룸·수동 URL·seed).
+
+# 감시 키워드(영어 중심). 'ARR' 은 검색/분류 키워드로만 사용, 지표 표시명은 Revenue Run-rate.
+keywords:
+  - "Anthropic revenue run rate"
+  - "Anthropic annualized revenue"
+  - "Anthropic ARR"
+  - "Claude Code revenue run rate"
+  - "Anthropic revenue target"
+  - "Anthropic valuation funding"
+  - "Anthropic crossed revenue"
+  - "Anthropic surpassed revenue"
+  - "Anthropic enterprise customers"
+
+# 출처 등급별 도메인 매핑(분류기에서 사용). 여기 없는 도메인은 Tier D(검토큐).
+source_tiers:
+  A:  # 공식
+    - anthropic.com
+    - www.anthropic.com
+  B:  # 주요 매체
+    - reuters.com
+    - bloomberg.com
+    - ft.com
+    - wsj.com
+    - cnbc.com
+    - theinformation.com
+    - nytimes.com
+    - techcrunch.com
+    - theverge.com
+  C:  # 외부 추정 업체 → Estimated 시계열 전용
+    - yipitdata.com
+    - sacra.com
+  D:  # 불명확/개인 → review queue 만
+    - x.com
+    - twitter.com
+    - linkedin.com
+    - medium.com
+
+# 수집 소스 목록. type 별 파서가 분리되어, 하나가 실패해도 나머지는 계속 수집.
+sources:
+  - name: "Anthropic Newsroom"
+    type: newsroom
+    tier: A
+    url: "https://www.anthropic.com/news"
+    enabled: true
+
+  - name: "Anthropic News RSS"
+    type: rss
+    tier: A
+    url: "https://www.anthropic.com/rss.xml"
+    enabled: true
+
+  # Google News RSS 검색(공개, 무료). 키워드별로 확장 가능.
+  - name: "Google News — Anthropic revenue run rate"
+    type: google_news
+    tier: B
+    query: "Anthropic revenue run rate"
+    enabled: true
+
+  - name: "Google News — Anthropic annualized revenue"
+    type: google_news
+    tier: B
+    query: "Anthropic annualized revenue"
+    enabled: true
+
+  - name: "Google News — Anthropic valuation funding"
+    type: google_news
+    tier: B
+    query: "Anthropic valuation funding"
+    enabled: true
+
+  # 사용자가 직접 추가한 URL(파일 기반). CLI add-url 로도 추가.
+  - name: "Manual URLs"
+    type: manual_urls
+    tier: null
+    file: "config/manual_urls.txt"
+    enabled: true
+
+# 수집기 동작 옵션
+options:
+  request_timeout_sec: 25
+  user_agent: "anthropic-runrate-tracker/0.1 (research; contact via repo)"
+  max_articles_per_source: 40
+  # Tier A 이고 정확한 Run-rate 표현이면 자동 확정 허용. 그 외는 review queue.
+  auto_confirm_tier_a: true

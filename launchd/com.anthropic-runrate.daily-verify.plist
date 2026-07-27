@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  매일 08:30 KST 전체 재검증(수집+export). ※ 생성·검증만. 승인 전 launchctl load 금지.
+  등록(승인 후):
+    cp launchd/com.anthropic-runrate.daily-verify.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.anthropic-runrate.daily-verify.plist
+-->
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.anthropic-runrate.daily-verify</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/zsh</string>
+    <string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/scripts/run_daily_verify.sh</string>
+  </array>
+  <key>StartCalendarInterval</key><array>
+    <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>30</integer></dict>
+  </array>
+  <key>StandardOutPath</key><string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/logs/launchd.daily.log</string>
+  <key>StandardErrorPath</key><string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/logs/launchd.daily.log</string>
+</dict></plist>

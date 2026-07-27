@@ -1,0 +1,179 @@
+{
+  "display_name": "Anthropic Revenue Run-rate Tracker",
+  "note": "Revenue Run-rate 는 회계상 연간 매출과 다릅니다. 공식/추정 시계열은 분리 표시됩니다.",
+  "series": {
+    "official": [
+      {
+        "value_low_usd_bn": 14.0,
+        "value_high_usd_bn": null,
+        "qualifier": "exact",
+        "as_of_start": "2026-02-12",
+        "as_of_end": "2026-02-12",
+        "date_precision": "day",
+        "published_at": "2026-02-12",
+        "source_name": "Anthropic (Series G announcement)",
+        "source_url": "https://www.anthropic.com/news/anthropic-raises-30-billion-series-g-funding-380-billion-post-money-valuation",
+        "source_tier": "A",
+        "source_type": "official",
+        "confidence_score": 0.95,
+        "evidence_text": "Today, our run-rate revenue is $14 billion, with this figure growing over 10x annually in each of those past three years.",
+        "is_official": 1,
+        "is_estimate": 0,
+        "is_target": 0
+      },
+      {
+        "value_low_usd_bn": 47.0,
+        "value_high_usd_bn": null,
+        "qualifier": "over",
+        "as_of_start": "2026-05-01",
+        "as_of_end": "2026-05-28",
+        "date_precision": "month_range",
+        "published_at": "2026-05-28",
+        "source_name": "Anthropic (Series H announcement)",
+        "source_url": "https://www.anthropic.com/news/series-h",
+        "source_tier": "A",
+        "source_type": "official",
+        "confidence_score": 0.9,
+        "evidence_text": "Since our Series G in February, adoption has continued to grow across global enterprise customers, and our run-rate revenue crossed $47 billion earlier this month.",
+        "is_official": 1,
+        "is_estimate": 0,
+        "is_target": 0
+      }
+    ],
+    "estimated": [],
+    "reported": [],
+    "target": []
+  },
+  "valuations": [
+    {
+      "id": 1,
+      "as_of_date": "2026-02-12",
+      "published_at": "2026-02-12",
+      "money_basis": "post_money",
+      "valuation_usd_bn": 380.0,
+      "investment_usd_bn": 30.0,
+      "round_name": "Series G",
+      "source_name": "Anthropic",
+      "source_url": "https://www.anthropic.com/news/anthropic-raises-30-billion-series-g-funding-380-billion-post-money-valuation",
+      "is_official": 1,
+      "evidence_text": "We have raised $30 billion in Series G funding led by GIC and Coatue, valuing Anthropic at $380 billion post-money.",
+      "status": "confirmed",
+      "content_hash": "4cd6d598cad2877d35daa2cd0af03097",
+      "created_at": "2026-07-27 06:58:00",
+      "updated_at": "2026-07-27 06:58:00"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "product": "Claude Code",
+      "metric_name": "revenue_run_rate",
+      "value_usd_bn": 2.5,
+      "qualifier": "over",
+      "unit": "billion",
+      "as_of_date": "2026-02-12",
+      "date_precision": "day",
+      "published_at": "2026-02-12",
+      "source_name": "Anthropic (Series G announcement)",
+      "source_url": "https://www.anthropic.com/news/anthropic-raises-30-billion-series-g-funding-380-billion-post-money-valuation",
+      "is_official": 1,
+      "status": "confirmed",
+      "evidence_text": "Claude Code's run-rate revenue has grown to over $2.5 billion; this figure has more than doubled since the beginning of 2026.",
+      "content_hash": "66d9b90042eca7add9ef64351d5131d8",
+      "created_at": "2026-07-27 06:58:00",
+      "updated_at": "2026-07-27 06:58:00"
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "event_date": "2026-02-12",
+      "event_type": "funding",
+      "title": "Series G — $30B at $380B post-money",
+      "description": "Led by GIC and Coatue.",
+      "source_url": "https://www.anthropic.com/news/anthropic-raises-30-billion-series-g-funding-380-billion-post-money-valuation",
+      "content_hash": "6c570e487f99a58133c160d5fdccbcc6",
+      "created_at": "2026-07-27 06:58:00"
+    },
+    {
+      "id": 2,
+      "event_date": "2026-05-28",
+      "event_type": "funding",
+      "title": "Series H announced",
+      "description": "Run-rate revenue crossed $47B earlier in May 2026.",
+      "source_url": "https://www.anthropic.com/news/series-h",
+      "content_hash": "1e53e1f2ac9a1992142c00080ed5a215",
+      "created_at": "2026-07-27 06:58:00"
+    }
+  ],
+  "metrics": {
+    "latest_official": {
+      "value_low_usd_bn": 47.0,
+      "value_high_usd_bn": null,
+      "qualifier": "over",
+      "as_of_start": "2026-05-01",
+      "as_of_end": "2026-05-28",
+      "date_precision": "month_range",
+      "published_at": "2026-05-28",
+      "source_name": "Anthropic (Series H announcement)",
+      "source_url": "https://www.anthropic.com/news/series-h",
+      "source_tier": "A",
+      "source_type": "official",
+      "confidence_score": 0.9,
+      "evidence_text": "Since our Series G in February, adoption has continued to grow across global enterprise customers, and our run-rate revenue crossed $47 billion earlier this month.",
+      "is_official": 1,
+      "is_estimate": 0,
+      "is_target": 0
+    },
+    "latest_estimate": null,
+    "official_estimate_gap": null,
+    "growth_velocity": {
+      "delta_usd_bn": 33.0,
+      "days": 105,
+      "delta_per_30d_usd_bn": 9.429,
+      "implied_monthly_growth_pct": 67.35,
+      "from": "2026-02-12",
+      "to": "2026-05-28",
+      "is_approximate": true,
+      "label": "하한/범위 기준(정밀값 아님)"
+    },
+    "acceleration": {
+      "state": "insufficient_data",
+      "note": "공식 3개 이상 필요"
+    },
+    "target_progress": null,
+    "valuation_multiple": {
+      "valuation_usd_bn": 380.0,
+      "runrate_usd_bn": 47.0,
+      "multiple": 8.1,
+      "basis": "official",
+      "valuation_as_of": "2026-02-12",
+      "runrate_as_of": "2026-05-28",
+      "date_gap_days": 105,
+      "date_mismatch_warning": false
+    },
+    "product_contribution": [
+      {
+        "product": "Claude Code",
+        "value_usd_bn": 2.5,
+        "qualifier": "over",
+        "share_pct": 5.3,
+        "as_of": "2026-02-12",
+        "date_mismatch": true
+      }
+    ]
+  },
+  "quality": {
+    "official_count": 2,
+    "estimate_count": 0,
+    "target_count": 0,
+    "review_queue_count": 0,
+    "uncertain_asof_count": 1,
+    "last_collect": null,
+    "last_errors": []
+  },
+  "freshness": {
+    "latest_official_as_of": "2026-05-28",
+    "generated_kst": "2026-07-27 06:58"
+  }
+}
