@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Dashboard } from "./types";
 import { usdBn, pct, pointValueText, pointDate, qualifierLabel } from "./format";
+import { dateToUtcEpoch } from "./dateutil";
 import RunrateChart from "./components/RunrateChart";
 
 function Stat({ label, value, meta, cls }: { label: string; value: string; meta?: string; cls?: string }) {
@@ -16,6 +17,9 @@ function Stat({ label, value, meta, cls }: { label: string; value: string; meta?
 const ACCEL_LABEL: Record<string, string> = {
   accelerating: "가속", decelerating: "감속", stable: "안정", insufficient_data: "데이터 부족",
 };
+
+const vsBadge = (s?: string | null): string =>
+  ({ verified: "검증완료", corroborated: "간접 확인", provisional: "원문 미확인", needs_review: "검토대기" }[s || ""] || "—");
 
 export default function App() {
   const [data, setData] = useState<Dashboard | null>(null);
@@ -36,6 +40,25 @@ export default function App() {
   const est = m.latest_estimate;
   const gap = m.official_estimate_gap;
   const vel = m.growth_velocity;
+
+  // 시계열별 최신값(카드 분리)
+  const lc = (s?: string) => (p: { source_name?: string | null }) => (p.source_name || "").toLowerCase().includes(s || "");
+  const last = <T,>(a: T[]): T | null => (a.length ? a[a.length - 1] : null);
+  const latestReported = last(data.series.reported);
+  const tickers = data.series.estimated.filter(lc("tickertrends"));
+  const yipits = data.series.estimated.filter(lc("yipit"));
+  const latestTicker = last(tickers);
+  const latestYipit = last(yipits);
+  // 외부추정(TickerTrends) 성장속도: 최근 두 점의 30일 환산
+  function estVelocity(): number | null {
+    if (tickers.length < 2) return null;
+    const a = tickers[tickers.length - 2], b = tickers[tickers.length - 1];
+    const ea = dateToUtcEpoch(a.as_of_end), eb = dateToUtcEpoch(b.as_of_end);
+    if (!ea || !eb || a.value_low_usd_bn == null || b.value_low_usd_bn == null) return null;
+    const days = Math.max(1, (eb - ea) / 86400000);
+    return Math.round((b.value_low_usd_bn - a.value_low_usd_bn) / days * 30 * 100) / 100;
+  }
+  const estVel = estVelocity();
   const hasAny = data.series.official.length + data.series.estimated.length +
                  data.series.reported.length + data.series.target.length > 0;
 
@@ -56,8 +79,19 @@ export default function App() {
           <div className="cards">
             <Stat label="최신 공식 Run-rate" value={off ? pointValueText(off) : "—"}
                   meta={off ? `기준일 ${off.as_of_end} · ${off.source_name ?? ""}` : "공식 데이터 없음"} />
-            <Stat label="최신 외부 추정치" value={est ? pointValueText(est) : "공개 추정 없음"}
+            <Stat label="최신 주요 매체 보도값" value={latestReported ? pointValueText(latestReported) : "—"}
+                  meta={latestReported ? `기준일 ${pointDate(latestReported)} · ${latestReported.source_name ?? ""}` : "보도값 없음"} />
+            <Stat label="최신 TickerTrends 추정" value={latestTicker ? pointValueText(latestTicker) : "없음"}
+                  meta={latestTicker ? `기준일 ${pointDate(latestTicker)} · ${vsBadge(latestTicker.verification_status)}` : "—"}
+                  cls={latestTicker?.verification_status === "provisional" ? "warn" : ""} />
+            <Stat label="최신 Yipit 추정" value={latestYipit ? pointValueText(latestYipit) : "없음"}
+                  meta={latestYipit ? `기준일 ${pointDate(latestYipit)} · ${vsBadge(latestYipit.verification_status)}` : "—"}
+                  cls={latestYipit?.verification_status === "provisional" ? "warn" : ""} />
+            <Stat label="최신 외부 추정치(승인분)" value={est ? pointValueText(est) : "승인된 추정 없음"}
                   meta={est ? `기준일 ${est.as_of_end}` : "—"} />
+            <Stat label="외부추정 성장속도(30일 환산)" value={estVel != null ? usdBn(estVel) : "—"}
+                  meta={estVel != null ? "TickerTrends 최근 구간" : "승인된 추정 2개↑ 필요"}
+                  cls={estVel != null && estVel >= 0 ? "up" : ""} />
             <Stat label="공식 대비 추정치 차이"
                   value={gap ? `${usdBn(gap.diff_usd_bn)} (${pct(gap.diff_pct)})` : "—"}
                   meta={gap ? gap.note : "추정치 없음"} />

@@ -30,6 +30,7 @@ class Candidate:
     as_of_start: str | None
     as_of_end: str | None
     date_precision: str
+    display_date: str | None
     published_at: str | None
     source_name: str | None
     source_url: str | None
@@ -82,7 +83,7 @@ def build_candidates(*, title: str, url: str, text: str, published_at: str | Non
         retro = is_retrospective(local)
 
         asof = extract_as_of(local, published_at)
-        st = classify(tier, money.qualifier, local, runrate_context=True)
+        st = classify(tier, money.qualifier, local, runrate_context=True, retrospective=retro)
         evidence = _best_evidence(local)
         ch = dedup.content_hash(url, title, published_at,
                                 money.value_low_usd_bn, money.value_high_usd_bn,
@@ -102,6 +103,7 @@ def build_candidates(*, title: str, url: str, text: str, published_at: str | Non
             original_unit=money.original_unit,
             qualifier=money.qualifier,
             as_of_start=asof.start, as_of_end=asof.end, date_precision=asof.precision,
+            display_date=(asof.end or asof.start or published_at),
             published_at=published_at,
             source_name=source_name, source_url=url, source_tier=tier,
             source_type=("product" if product else st.source_type), status=status,

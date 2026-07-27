@@ -19,7 +19,7 @@ const EMPTY: Dashboard = {
 describe("RunrateChart", () => {
   it("빈 데이터면 안내 메시지", () => {
     render(<RunrateChart data={EMPTY} />);
-    expect(screen.getByText(/표시할 공식\/추정 데이터가 아직 없습니다/)).toBeTruthy();
+    expect(screen.getByText(/표시할 데이터가 없습니다/)).toBeTruthy();
   });
 
   it("공식 포인트 있으면 svg 렌더", () => {

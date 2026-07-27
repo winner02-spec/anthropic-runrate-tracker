@@ -79,6 +79,16 @@ def test_retrospective_number_needs_review():
     assert nine and all(c.status == "needs_review" for c in nine)
 
 
+def test_multiple_timepoints_one_article():
+    # 한 기사에 두 시점 수치 → 각각 별도 후보(현재 $47B + 회고 $9B)
+    cs = build_candidates(
+        title="Series H", url="https://www.anthropic.com/news/series-h",
+        text="Our run-rate revenue crossed $47 billion, up from $9 billion at the end of 2025.",
+        published_at="2026-05-28", source_name="Anthropic", tier="A")
+    vals = sorted(c.value_low_usd_bn for c in cs)
+    assert 9 in vals and 47 in vals   # 두 시점 모두 추출
+
+
 def test_undated_not_auto_confirmed():
     cs = build_candidates(
         title="x", url="https://www.anthropic.com/news/x",

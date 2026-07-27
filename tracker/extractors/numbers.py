@@ -39,6 +39,7 @@ _SINGLE_RE = re.compile(rf"\$?\s*({_NUM})\s*({_UNIT})\b\+?", re.IGNORECASE)
 
 _OVER_WORDS = ("more than", "over", "at least", "north of", "surpass", "surpassed",
                "exceed", "exceeded", "crossed", "above", "upward of", "topped")
+_APPROACHING_WORDS = ("approaching", "nearing", "nears", "closing in on", "on pace to reach")
 _APPROX_WORDS = ("about", "approximately", "around", "roughly", "nearly", "~", "close to", "almost")
 _TARGET_WORDS = ("target", "targeting", "aims for", "aiming", "goal of", "goal", "projected",
                  "projecting", "forecast", "expects", "expected to reach", "on track to",
@@ -75,6 +76,9 @@ def _qualifier_from_context(prefix: str, matched: str) -> str:
     for w in _OVER_WORDS:
         if w in p:
             return "over"
+    for w in _APPROACHING_WORDS:
+        if w in p:
+            return "approaching"
     for w in _APPROX_WORDS:
         if w in p:
             return "approximately"

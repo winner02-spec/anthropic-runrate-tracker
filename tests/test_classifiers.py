@@ -25,4 +25,14 @@ def test_official_vs_estimate_separation():
     assert not t.auto_confirmable
 
     d = classify("D", "exact", "someone tweeted $30B", runrate_context=True)
-    assert d.source_type == "social" and not d.auto_confirmable
+    # Tier D(X 등) → 외부추정 취급, 자동확정 금지(review 전용)
+    assert d.source_type == "third_party_estimate" and not d.auto_confirmable
+    assert d.is_estimate
+
+
+def test_official_current_vs_retrospective():
+    cur = classify("A", "exact", "our run-rate revenue is $14B", True, retrospective=False)
+    assert cur.source_type == "official_current" and cur.is_official
+    retro = classify("A", "over", "up from $9 billion at end of 2025", True, retrospective=True)
+    assert retro.source_type == "official_retrospective" and retro.is_official
+    assert not retro.auto_confirmable   # 회고값은 자동확정 안 함

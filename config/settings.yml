@@ -1,0 +1,16 @@
+# 앱 설정. 비용/자동승인/스케줄 제어.
+estimates:
+  auto_approve: false        # 외부 추정치(TickerTrends/Yipit 등) 자동승인 — 기본 false(항상 review)
+
+llm:
+  enabled: false             # LLM 분류 기본 OFF(규칙기반만으로 동작)
+  only_on_new_candidates: true   # 신규 숫자 후보 있을 때만 호출
+  batch_candidates: true     # 여러 후보 batch 분류
+
+collect:
+  recent_days: 7             # daily 모드: 최근 N일 신규 자료만
+
+schedule:                    # launchd 참고용(등록은 수동)
+  daily_discovery: "08:30"   # KST 매일
+  weekly_backfill: "Sun 09:00"
+  health_check: "09:30"

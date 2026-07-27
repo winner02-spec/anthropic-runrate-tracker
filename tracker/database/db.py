@@ -26,9 +26,16 @@ def connect(path: str | None = None) -> sqlite3.Connection:
 
 # 스키마 진화: 기존 DB 에 누락된 컬럼을 멱등적으로 추가(CREATE TABLE IF NOT EXISTS 는 컬럼 추가 안 함).
 _MIGRATIONS = {
-    "runrate_updates": [("date_precision", "TEXT DEFAULT 'day'")],
+    "runrate_updates": [("date_precision", "TEXT DEFAULT 'day'"),
+                        ("display_date", "TEXT"),
+                        ("verification_status", "TEXT DEFAULT 'needs_review'"),
+                        ("verification_reason", "TEXT"), ("verified_at", "TEXT"),
+                        ("source_note", "TEXT"), ("evidence_note", "TEXT"),
+                        ("source_locator", "TEXT")],
     "product_metrics": [("qualifier", "TEXT DEFAULT 'exact'"),
                         ("date_precision", "TEXT DEFAULT 'day'")],
+    "ingestion_runs": [("mode", "TEXT"), ("skipped_cached", "INTEGER DEFAULT 0"),
+                       ("api_calls", "INTEGER DEFAULT 0"), ("est_tokens", "INTEGER DEFAULT 0")],
 }
 
 

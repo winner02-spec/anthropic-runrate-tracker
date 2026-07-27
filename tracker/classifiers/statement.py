@@ -1,59 +1,63 @@
 # -*- coding: utf-8 -*-
-"""공식/보도/추정/목표 분류 + is_official/is_estimate/is_target 플래그 + 신뢰도.
+"""공식/보도/추정/목표 분류 + source_type 체계 + 플래그 + 신뢰도.
 
-원칙:
-· Tier A → official (target 언어면 target 병기). 자동 확정 후보.
-· Tier B → reported (매체 보도). 공식 재인용이면 official 승격은 원문 확인 후에만.
-· Tier C → estimate (외부 추정) → Estimated 시계열 전용.
-· Tier D → social/unclear → review queue 만.
-· qualifier=target 또는 target 언어 → is_target.
+source_type:
+· official_current        Tier A 공식 '현재값'
+· official_retrospective  Tier A 공식자료가 회고한 '과거값'
+· reported                주요 매체 자체 보도
+· reported_company_statement  매체가 회사 공식발언을 재인용
+· third_party_estimate    TickerTrends/Yipit/Sacra 등 외부추정 → Estimated 시계열 전용
+· target                  목표치
+
+자동확정(auto_confirmable)은 Tier A · 현재값(비회고) · 비목표 · run-rate 문맥일 때만.
 """
 from __future__ import annotations
 from dataclasses import dataclass
 
-_ESTIMATE_WORDS = ("estimate", "estimated", "estimates", "we think", "our model",
-                   "implied", "projection by", "according to data")
+from tracker import config
+
+_COMPANY_QUOTE = ("anthropic said", "anthropic announced", "the company said",
+                  "in a statement", "spokesperson", "press release", "according to anthropic",
+                  "ceo", "cfo", "dario amodei", "daniela amodei")
 _TARGET_WORDS = ("target", "targeting", "goal", "aims", "aiming", "projected",
                  "forecast", "expects to reach", "on track to", "plans to reach")
-_OFFICIAL_ATTRIB = ("anthropic said", "anthropic announced", "the company said",
-                    "in a statement", "spokesperson", "official", "press release",
-                    "ceo", "cfo", "dario amodei", "daniela amodei")
 
 
 @dataclass
 class Statement:
-    source_type: str        # official|reported|estimate|target|social
+    source_type: str
     is_official: bool
     is_estimate: bool
     is_target: bool
-    auto_confirmable: bool  # Tier A + 명확 run-rate 표현일 때만
-    confidence: float       # 0~1
+    auto_confirmable: bool
+    confidence: float
 
 
-def classify(tier: str, qualifier: str, text: str, runrate_context: bool) -> Statement:
+def classify(tier: str, qualifier: str, text: str, runrate_context: bool,
+             retrospective: bool = False) -> Statement:
     t = (text or "").lower()
     is_target = qualifier == "target" or any(w in t for w in _TARGET_WORDS)
 
+    if is_target:
+        conf = 0.7 if tier in ("A", "B") else 0.5
+        return Statement(config.ST_TARGET, False, False, True, False, conf)
+
     if tier == "A":
-        stype = "target" if is_target else "official"
-        conf = 0.9 if runrate_context else 0.75
-        return Statement(stype, is_official=not is_target, is_estimate=False,
-                         is_target=is_target,
-                         auto_confirmable=(runrate_context and not is_target),
-                         confidence=conf)
+        if retrospective:
+            return Statement(config.ST_OFFICIAL_RETROSPECTIVE, True, False, False,
+                             auto_confirmable=False, confidence=0.85)
+        return Statement(config.ST_OFFICIAL_CURRENT, True, False, False,
+                         auto_confirmable=runrate_context, confidence=0.92)
 
     if tier == "B":
-        # 매체가 외부추정을 인용? estimate 언어면 estimate 로 강등
-        if any(w in t for w in _ESTIMATE_WORDS):
-            return Statement("estimate", False, True, is_target, False, 0.5)
-        stype = "target" if is_target else "reported"
-        return Statement(stype, is_official=False, is_estimate=False, is_target=is_target,
-                         auto_confirmable=False, confidence=0.6)
+        stype = (config.ST_REPORTED_COMPANY if any(w in t for w in _COMPANY_QUOTE)
+                 else config.ST_REPORTED)
+        return Statement(stype, False, False, False, auto_confirmable=False, confidence=0.6)
 
     if tier == "C":
-        return Statement("estimate", is_official=False, is_estimate=True,
-                         is_target=is_target, auto_confirmable=False, confidence=0.45)
+        return Statement(config.ST_THIRD_PARTY_ESTIMATE, False, True, False,
+                         auto_confirmable=False, confidence=0.45)
 
-    # Tier D
-    return Statement("social", is_official=False, is_estimate=False, is_target=is_target,
+    # Tier D → 외부추정 취급하되 review 전용
+    return Statement(config.ST_THIRD_PARTY_ESTIMATE, False, True, False,
                      auto_confirmable=False, confidence=0.25)

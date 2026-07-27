@@ -52,19 +52,22 @@ def _collect_manual_urls(src: dict, name: str, limit: int) -> list[Document]:
     return docs[:limit]
 
 
-def _maybe_fetch_text(doc: Document, opts: dict) -> str:
-    """본문이 비었고 직접 기사 URL 이면 best-effort 로 텍스트 확보(격리)."""
-    if doc.text and len(doc.text) > 120:
-        return doc.text
+_CACHED = object()   # 캐시 히트 sentinel(재분석 불필요)
+
+
+def _maybe_fetch_text_cached(conn, doc: Document, opts: dict):
+    """본문 확보(조건부 GET). ETag/Last-Modified/content_hash 동일 시 _CACHED 반환(스킵)."""
+    from tracker.collectors.base import conditional_get
     if not doc.url or "news.google.com" in doc.url:
-        return doc.text
-    try:
-        r = http_get(doc.url, timeout=opts.get("request_timeout_sec", 25),
-                     ua=opts.get("user_agent", "anthropic-runrate-tracker/0.1"))
-        if r.status_code == 200:
-            return html_to_text(r.text)
-    except Exception:
-        return doc.text
+        return doc.text  # 피드 요약만 사용(직접 fetch 불가)
+    if doc.text and len(doc.text) > 400:
+        return doc.text  # 이미 충분한 본문(요약) → 그대로
+    r, cached = conditional_get(conn, doc.url, timeout=opts.get("request_timeout_sec", 25),
+                                ua=opts.get("user_agent", "anthropic-runrate-tracker/0.1"))
+    if cached:
+        return _CACHED
+    if r is not None and r.status_code == 200:
+        return html_to_text(r.text)
     return doc.text
 
 
@@ -81,14 +84,47 @@ def _existing_official_semantic(conn) -> set:
     return keys
 
 
-def run_collect(conn, dry_run: bool = False) -> dict:
+def _within_recent_days(published_at, days: int) -> bool:
+    if not published_at:
+        return True   # 날짜 불명확은 통과(후단에서 처리)
+    try:
+        from datetime import date
+        from dateutil import parser as dp
+        d = dp.parse(str(published_at)).date()
+        return (date.today() - d).days <= days
+    except Exception:
+        return True
+
+
+def _register_source_candidate(conn, url: str, relevant: bool) -> None:
+    """discovery: sources.yml 에 없는 도메인을 source_candidates 에 등록(자동 승격 금지)."""
+    from tracker.classifiers.source_tier import domain_of, classify_tier
+    dom = domain_of(url)
+    if not dom:
+        return
+    if classify_tier(url) != "D":   # 이미 알려진(A/B/C) 도메인이면 후보 아님
+        return
+    now = db.now_kst()
+    conn.execute(
+        "INSERT INTO source_candidates(domain, source_name, first_seen_at, last_seen_at, "
+        "discovery_count, relevant_article_count, status) VALUES(?,?,?,?,1,?, 'candidate') "
+        "ON CONFLICT(domain) DO UPDATE SET last_seen_at=excluded.last_seen_at, "
+        "discovery_count=discovery_count+1, "
+        "relevant_article_count=relevant_article_count+excluded.relevant_article_count",
+        (dom, dom, now, now, 1 if relevant else 0))
+    conn.commit()
+
+
+def run_collect(conn, mode: str = "daily", dry_run: bool = False) -> dict:
     from tracker import dedup
     data = _load_sources()
     opts = data.get("options", {})
+    settings = config.settings()
+    recent_days = int(settings.get("collect", {}).get("recent_days", 7))
     sources = [s for s in data.get("sources", []) if s.get("enabled", True)]
     started = db.now_kst()
     searched, errors = [], []
-    docs_found = new_candidates = confirmed = duplicates = 0
+    docs_found = new_candidates = confirmed = duplicates = skipped_cached = 0
     seen_semantic = _existing_official_semantic(conn)   # 대표 공식원문 이후 재인용은 supporting
 
     for src in sources:
@@ -99,15 +135,26 @@ def run_collect(conn, dry_run: bool = False) -> dict:
             errors.append(f"{src.get('name')}: {repr(e)[:160]}")
             continue
         for doc in docs:
+            # daily: 최근 N일만
+            if mode == "daily" and not _within_recent_days(doc.published_at, recent_days):
+                continue
             docs_found += 1
             try:
-                text = _maybe_fetch_text(doc, opts)
+                text = _maybe_fetch_text_cached(conn, doc, opts)
+                if text is _CACHED:
+                    skipped_cached += 1
+                    continue   # ETag/Last-Modified/content_hash 동일 → 재분석 스킵(토큰 절감)
                 cands = build_candidates(title=doc.title, url=doc.url, text=text,
                                          published_at=doc.published_at,
                                          source_name=doc.source_name, tier=doc.tier or "D")
             except Exception as e:  # 문서 격리
                 errors.append(f"doc {doc.url[:60]}: {repr(e)[:120]}")
                 continue
+            if mode == "discovery":
+                # 새 도메인 등록만(숫자 자동확정 안 함). 후보는 review 로.
+                _register_source_candidate(conn, doc.url, relevant=bool(cands))
+                for c in cands:
+                    c.status = config.STATUS_NEEDS_REVIEW
             for c in cands:
                 if db.exists_hash(conn, "runrate_updates", c.content_hash):
                     duplicates += 1
@@ -122,6 +169,13 @@ def run_collect(conn, dry_run: bool = False) -> dict:
                         c.source_type = (c.source_type or "") + "|supporting"
                     else:
                         seen_semantic.add(sk)
+                # 피드백 재사용: 과거 오분류/거절 이력 있는 도메인은 자동확정 막고 review 로
+                if c.status == config.STATUS_CONFIRMED:
+                    from tracker.classifiers.source_tier import domain_of
+                    from tracker.classifiers import feedback
+                    if feedback.domain_should_review(conn, domain_of(c.source_url or "")):
+                        c.status = config.STATUS_NEEDS_REVIEW
+                        c.source_type = (c.source_type or "") + "|feedback_review"
                 if dry_run:
                     new_candidates += 1
                     continue
@@ -142,15 +196,16 @@ def run_collect(conn, dry_run: bool = False) -> dict:
     finished = db.now_kst()
     if not dry_run:
         db.insert(conn, "ingestion_runs", {
-            "started_at": started, "finished_at": finished,
+            "started_at": started, "finished_at": finished, "mode": mode,
             "sources_searched": json.dumps(searched, ensure_ascii=False),
             "docs_found": docs_found, "new_candidates": new_candidates,
             "confirmed": confirmed, "duplicates": duplicates,
+            "skipped_cached": skipped_cached, "api_calls": 0, "est_tokens": 0,
             "errors": json.dumps(errors, ensure_ascii=False),
         })
-    return {"docs_found": docs_found, "new_candidates": new_candidates,
-            "confirmed": confirmed, "duplicates": duplicates, "errors": errors,
-            "searched": searched}
+    return {"mode": mode, "docs_found": docs_found, "new_candidates": new_candidates,
+            "confirmed": confirmed, "duplicates": duplicates, "skipped_cached": skipped_cached,
+            "api_calls": 0, "est_tokens": 0, "errors": errors, "searched": searched}
 
 
 def _enqueue_review(conn, runrate_id: int, c, now: str) -> None:

@@ -1,5 +1,5 @@
 export type Qualifier =
-  | "exact" | "approximately" | "over" | "range" | "target" | "estimate" | "reported";
+  | "exact" | "approximately" | "approaching" | "over" | "range" | "target" | "estimate" | "reported";
 
 export interface Point {
   value_low_usd_bn: number | null;
@@ -18,6 +18,10 @@ export interface Point {
   is_official?: number;
   is_estimate?: number;
   is_target?: number;
+  verification_status?: "verified" | "corroborated" | "provisional" | "needs_review" | null;
+  verification_reason?: string | null;
+  source_note?: string | null;
+  evidence_note?: string | null;
 }
 
 export interface Valuation {

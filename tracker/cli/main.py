@@ -40,15 +40,45 @@ def cmd_seed(args) -> int:
 
 def cmd_collect(args) -> int:
     conn = _conn()
-    res = ingest.run_collect(conn, dry_run=args.dry_run)
-    print("[collect]", json.dumps({k: res[k] for k in
-          ("docs_found", "new_candidates", "confirmed", "duplicates")}, ensure_ascii=False))
+    res = ingest.run_collect(conn, mode=args.mode, dry_run=args.dry_run)
+    print(f"[collect mode={args.mode}]", json.dumps({k: res[k] for k in
+          ("docs_found", "new_candidates", "confirmed", "duplicates", "skipped_cached",
+           "api_calls", "est_tokens")}, ensure_ascii=False))
     if res["errors"]:
         print("  경고:", "; ".join(res["errors"][:5]))
     if not args.dry_run:
         _notify_new(conn)
-        dashboard.write_dashboard(conn)
-        print("  → dashboard.json 갱신")
+        ch = dashboard.write_if_changed(conn)   # 변경 시에만 export
+        print("  → dashboard.json 갱신" if ch["written"] else "  → 데이터 변경 없음: export 생략")
+    conn.close()
+    return 0
+
+
+def cmd_backfill(args) -> int:
+    from tracker import backfill
+    conn = _conn()
+    res = backfill.run_backfill(conn, date_from=getattr(args, "from"), date_to=args.to,
+                                source_filter=args.source, dry_run=args.dry_run)
+    print(f"[backfill {'DRY' if args.dry_run else 'MERGE'}]", json.dumps(res, ensure_ascii=False))
+    if not args.dry_run and res["added"]:
+        ch = dashboard.write_if_changed(conn)
+        print("  → dashboard.json 갱신" if ch["written"] else "  → 변경 없음")
+    conn.close()
+    return 0
+
+
+def cmd_verify_history(args) -> int:
+    from tracker import verify
+    conn = _conn()
+    res = verify.verify_history(conn, record=args.record)
+    print(f"verify-history · 공식 포인트 {res['official_points']} · 총 이슈 {res['total_issues']}")
+    for typ, items in res["issues"].items():
+        if items:
+            print(f"  [{typ}] {len(items)}건")
+            for it in items[:5]:
+                print("     -", it)
+    if res["total_issues"] == 0:
+        print("  ✅ 이상 없음")
     conn.close()
     return 0
 
@@ -93,15 +123,35 @@ def cmd_approve(args) -> int:
         print(f"검토 ID {args.id} 없음."); return 1
     rq = dict(rq)
     now = db.now_kst()
+    rr = None
     if rq.get("runrate_update_id"):
+        rr = db.fetchone(conn, "SELECT * FROM runrate_updates WHERE id=?", (rq["runrate_update_id"],))
         conn.execute("UPDATE runrate_updates SET status=?, updated_at=? WHERE id=?",
                      (config.STATUS_CONFIRMED, now, rq["runrate_update_id"]))
     conn.execute("UPDATE review_queue SET status='approved' WHERE id=?", (args.id,))
     conn.commit()
+    _record_feedback(conn, rq, rr, action="approve")
     dashboard.write_dashboard(conn)
     print(f"[OK] 승인 · dashboard 갱신 (검토 ID {args.id})")
     conn.close()
     return 0
+
+
+def _record_feedback(conn, rq: dict, rr, action: str) -> None:
+    from tracker.classifiers import feedback
+    from tracker.classifiers.source_tier import domain_of
+    d = dict(rr) if rr else {}
+    feedback.record(
+        conn, candidate_id=rq.get("runrate_update_id"),
+        source_domain=domain_of(rq.get("source_url") or d.get("source_url") or ""),
+        original_classification=rq.get("classification") or d.get("source_type") or "",
+        final_classification=d.get("source_type") or "",
+        original_metric_scope=d.get("metric_scope") or "",
+        final_metric_scope=d.get("metric_scope") or "",
+        original_qualifier=d.get("qualifier") or "",
+        final_qualifier=d.get("qualifier") or "",
+        approval_action=action,
+        evidence_pattern=(d.get("evidence_text") or rq.get("evidence_text") or "")[:120])
 
 
 def cmd_reject(args) -> int:
@@ -110,12 +160,15 @@ def cmd_reject(args) -> int:
     if not rq:
         print(f"검토 ID {args.id} 없음."); return 1
     rq = dict(rq)
+    rr = None
     if rq.get("runrate_update_id"):
+        rr = db.fetchone(conn, "SELECT * FROM runrate_updates WHERE id=?", (rq["runrate_update_id"],))
         conn.execute("UPDATE runrate_updates SET status=? WHERE id=?",
                      (config.STATUS_REJECTED, rq["runrate_update_id"]))
     conn.execute("UPDATE review_queue SET status='rejected' WHERE id=?", (args.id,))
     conn.commit()
-    print(f"[OK] 거절 (검토 ID {args.id})")
+    _record_feedback(conn, rq, rr, action="reject")
+    print(f"[OK] 거절 · 피드백 저장 (검토 ID {args.id})")
     conn.close()
     return 0
 
@@ -179,6 +232,17 @@ def cmd_add_manual(args) -> int:
     return 0
 
 
+def cmd_health(args) -> int:
+    from tracker import health
+    conn = _conn()
+    res = health.run_health(conn)
+    print("health check:")
+    for k, v in res.items():
+        print(f"  {k}: {v}")
+    conn.close()
+    return 0
+
+
 def cmd_export(args) -> int:
     conn = _conn()
     out = dashboard.write_dashboard(conn)
@@ -218,7 +282,19 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("init").set_defaults(func=cmd_init)
     sub.add_parser("seed").set_defaults(func=cmd_seed)
-    c = sub.add_parser("collect"); c.add_argument("--dry-run", action="store_true"); c.set_defaults(func=cmd_collect)
+    c = sub.add_parser("collect")
+    c.add_argument("--mode", choices=["daily", "discovery"], default="daily")
+    c.add_argument("--dry-run", action="store_true")
+    c.set_defaults(func=cmd_collect)
+    b = sub.add_parser("backfill")
+    b.add_argument("--from", dest="from")
+    b.add_argument("--to", default="today")
+    b.add_argument("--source", choices=["official", "reuters", "estimates"])
+    b.add_argument("--dry-run", action="store_true")
+    b.set_defaults(func=cmd_backfill)
+    vh = sub.add_parser("verify-history")
+    vh.add_argument("--record", action="store_true")
+    vh.set_defaults(func=cmd_verify_history)
     sub.add_parser("review").set_defaults(func=cmd_review)
     a = sub.add_parser("approve"); a.add_argument("id", type=int); a.set_defaults(func=cmd_approve)
     r = sub.add_parser("reject"); r.add_argument("id", type=int); r.set_defaults(func=cmd_reject)
@@ -230,6 +306,7 @@ def build_parser() -> argparse.ArgumentParser:
     m.add_argument("--official", action="store_true")
     m.set_defaults(func=cmd_add_manual)
     sub.add_parser("export").set_defaults(func=cmd_export)
+    sub.add_parser("health").set_defaults(func=cmd_health)
     sub.add_parser("status").set_defaults(func=cmd_status)
     return p
 

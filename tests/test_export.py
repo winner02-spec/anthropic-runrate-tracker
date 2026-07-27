@@ -12,6 +12,8 @@ def _seed_conn(tmp_path):
     base = {"company": "Anthropic", "metric_scope": config.SCOPE_COMPANY,
             "metric_type": config.METRIC_RUNRATE, "value_high_usd_bn": None,
             "original_currency": "USD", "original_unit": "billion",
+            "source_url": "https://www.anthropic.com/news/x", "evidence_text": "ev",
+            "verification_status": config.VS_VERIFIED,
             "status": config.STATUS_CONFIRMED, "created_at": now, "updated_at": now}
     db.insert(conn, "runrate_updates", {**base, "value_low_usd_bn": 14, "qualifier": "exact",
               "as_of_start": "2026-02-12", "as_of_end": "2026-02-12", "published_at": "2026-02-12",
@@ -34,6 +36,23 @@ def test_export_separates_official_and_estimate(tmp_path):
     assert payload["series"]["estimated"][0]["value_low_usd_bn"] == 20
     assert "metrics" in payload and "quality" in payload
     assert payload["quality"]["official_count"] == 1
+
+
+def test_provenance_validation_blocks_export(tmp_path):
+    import pytest
+    conn = db.connect(str(tmp_path / "t.sqlite"))
+    db.init_db(conn)
+    now = db.now_kst()
+    # source_url·evidence 없는 확정 관측치 → export 실패해야 함(item 6)
+    db.insert(conn, "runrate_updates", {
+        "company": "Anthropic", "metric_scope": config.SCOPE_COMPANY,
+        "metric_type": config.METRIC_RUNRATE, "value_low_usd_bn": 14, "qualifier": "exact",
+        "as_of_end": "2026-02-12", "published_at": "2026-02-12",  # source_url/evidence 누락
+        "verification_status": config.VS_VERIFIED,   # verified 인데 필수필드 누락 → 실패해야
+        "source_type": "official_current", "is_official": 1, "status": config.STATUS_CONFIRMED,
+        "content_hash": "hx", "created_at": now, "updated_at": now})
+    with pytest.raises(dashboard.ProvenanceError):
+        dashboard.write_dashboard(conn, tmp_path / "d.json")
 
 
 def test_export_writes_valid_json(tmp_path):

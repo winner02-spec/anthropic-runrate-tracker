@@ -13,6 +13,7 @@ export function pct(v: number | null | undefined, digits = 1): string {
 const QUALIFIER_LABEL: Record<Qualifier, string> = {
   exact: "정확",
   approximately: "약",
+  approaching: "근접",
   over: "이상",
   range: "범위",
   target: "목표",
@@ -31,6 +32,7 @@ export function pointValueText(p: Point): string {
   if (lo === null || lo === undefined) return "—";
   if (p.qualifier === "range" && hi != null) return `${usdBn(lo)}–${usdBn(hi)}`;
   if (p.qualifier === "over") return `${usdBn(lo)} 이상`;
+  if (p.qualifier === "approaching") return `${usdBn(lo)} 근접`;
   if (p.qualifier === "approximately") return `약 ${usdBn(lo)}`;
   if (p.qualifier === "target") return `목표 ${usdBn(lo)}`;
   return usdBn(lo);

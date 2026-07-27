@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- 매일 09:30 KST: health check + 이상 탐지(anomaly_queue). 외부 본문 재분석 없음(비용 0).
+     ※ 생성·plutil 검증까지만. 승인 전 launchctl load 금지. -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.anthropic-runrate.health</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/zsh</string>
+    <string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/scripts/run_health.sh</string>
+  </array>
+  <key>StartCalendarInterval</key><array>
+    <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>30</integer></dict>
+  </array>
+  <key>StandardOutPath</key><string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/logs/launchd.health.log</string>
+  <key>StandardErrorPath</key><string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/logs/launchd.health.log</string>
+</dict></plist>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- 매주 일요일 09:00 KST: 2024년 이후 과거 자료 재검사(backfill + verify-history).
+     ※ 생성·plutil 검증까지만. 승인 전 launchctl load 금지. -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.anthropic-runrate.weekly-backfill</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/zsh</string>
+    <string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/scripts/run_weekly_backfill.sh</string>
+  </array>
+  <key>StartCalendarInterval</key><array>
+    <dict><key>Weekday</key><integer>0</integer><key>Hour</key><integer>9</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
+  <key>StandardOutPath</key><string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/logs/launchd.backfill.log</string>
+  <key>StandardErrorPath</key><string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/logs/launchd.backfill.log</string>
+</dict></plist>

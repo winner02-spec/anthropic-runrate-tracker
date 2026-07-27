@@ -34,6 +34,13 @@ def test_approximately():
         assert _one(t).qualifier == "approximately", t
 
 
+def test_approaching():
+    for t in ["approaching $50 billion", "nearing $50B", "nears $50 billion"]:
+        assert _one(t).qualifier == "approaching", t
+    # 'approaching'을 approximately/exact 로 뭉개지 않음
+    assert _one("about $50B").qualifier == "approximately"
+
+
 def test_range():
     c = _one("targeting revenue of $20B to $26 billion")
     # target 언어가 있어도 범위는 range 우선(양끝 보존)

@@ -9,7 +9,7 @@
 """
 from __future__ import annotations
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 4
 
 DDL = """
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -31,17 +31,25 @@ CREATE TABLE IF NOT EXISTS runrate_updates (
     as_of_start        TEXT,               -- 기준시점 시작(YYYY-MM-DD)
     as_of_end          TEXT,               -- 기준시점 끝(불명확 시 월범위)
     date_precision     TEXT DEFAULT 'day', -- day | month_range | quarter | unknown (기준일 정밀도)
+    display_date       TEXT,               -- 차트 위치용 단일일(원본 기준일 아님; 범위면 대표점)
     published_at       TEXT,               -- 게시/발표일(YYYY-MM-DD, 원문 표시일)
     source_name        TEXT,
     source_url         TEXT,
     source_tier        TEXT,               -- A|B|C|D
-    source_type        TEXT,               -- official|reported|estimate|target|social 등
+    source_type        TEXT,               -- official_current|official_retrospective|reported|reported_company_statement|third_party_estimate|target
     status             TEXT NOT NULL DEFAULT 'needs_review',
     confidence_score   REAL DEFAULT 0,
     evidence_text      TEXT,               -- 근거 문장(짧게)
     is_official        INTEGER DEFAULT 0,
     is_estimate        INTEGER DEFAULT 0,
     is_target          INTEGER DEFAULT 0,
+    -- 계층형 검증(verified/corroborated/provisional/needs_review)
+    verification_status TEXT DEFAULT 'needs_review',
+    verification_reason TEXT,
+    verified_at        TEXT,
+    source_note        TEXT,   -- 원문 URL 없을 때 출처 설명(예: 사용자 제공 이미지 경로)
+    evidence_note      TEXT,   -- 원문 evidence 미확보 시 근거 메모(원문 문장으로 저장 금지)
+    source_locator     TEXT,   -- 기사 제목/식별자 등 위치 힌트
     supersedes_id      INTEGER,
     content_hash       TEXT UNIQUE,
     created_at         TEXT,
@@ -105,11 +113,15 @@ CREATE TABLE IF NOT EXISTS ingestion_runs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     started_at         TEXT,
     finished_at        TEXT,
+    mode               TEXT,                -- daily | discovery | backfill | health
     sources_searched   TEXT,                -- JSON 배열
     docs_found         INTEGER DEFAULT 0,
     new_candidates     INTEGER DEFAULT 0,
     confirmed          INTEGER DEFAULT 0,
     duplicates         INTEGER DEFAULT 0,
+    skipped_cached     INTEGER DEFAULT 0,   -- ETag/Last-Modified/content_hash 동일 → 재분석 스킵
+    api_calls          INTEGER DEFAULT 0,   -- LLM/외부 API 호출 수(비용 추적)
+    est_tokens         INTEGER DEFAULT 0,   -- 추정 토큰 사용량
     errors             TEXT                 -- JSON/텍스트
 );
 
@@ -134,7 +146,60 @@ CREATE TABLE IF NOT EXISTS review_queue (
     created_at         TEXT
 );
 
+-- discovery: sources.yml 에 없는 새 도메인 후보(자동 승격 금지)
+CREATE TABLE IF NOT EXISTS source_candidates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    domain                 TEXT UNIQUE,
+    source_name            TEXT,
+    first_seen_at          TEXT,
+    last_seen_at           TEXT,
+    discovery_count        INTEGER DEFAULT 0,
+    relevant_article_count INTEGER DEFAULT 0,
+    direct_source_ratio    REAL DEFAULT 0,
+    recommended_tier       TEXT,             -- 추천만(수동 승격 필요)
+    confidence_score       REAL DEFAULT 0,
+    status                 TEXT DEFAULT 'candidate'  -- candidate|promoted|ignored
+);
+
+-- 사용자 승인/수정/거절 피드백(재훈련 아님; 이후 분류에 참고)
+CREATE TABLE IF NOT EXISTS classification_feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    candidate_id           INTEGER,
+    source_domain          TEXT,
+    original_classification TEXT,
+    final_classification    TEXT,
+    original_metric_scope   TEXT,
+    final_metric_scope      TEXT,
+    original_qualifier      TEXT,
+    final_qualifier         TEXT,
+    approval_action         TEXT,            -- approve|edit|reject
+    correction_reason       TEXT,
+    evidence_pattern        TEXT,            -- 근거 문장 특징(정규화)
+    created_at              TEXT
+);
+
+-- 이상 탐지 큐(자동 삭제/수정 금지, 사람이 검토)
+CREATE TABLE IF NOT EXISTS anomaly_queue (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    anomaly_type           TEXT,             -- stale_90d|estimate_gap|estimate_drop|accel|lower_official|date_inversion|same_date_conflict|qualifier_simplified|official_estimate_mix|requote_dup
+    detail                 TEXT,
+    related_id             INTEGER,
+    detected_at            TEXT,
+    status                 TEXT DEFAULT 'open'  -- open|reviewed|dismissed
+);
+
+-- HTTP 캐시(ETag/Last-Modified/content_hash 동일 시 재분석 스킵 → 토큰/비용 절감)
+CREATE TABLE IF NOT EXISTS fetch_cache (
+    url                    TEXT PRIMARY KEY,
+    etag                   TEXT,
+    last_modified          TEXT,
+    content_hash           TEXT,
+    last_fetched_at        TEXT
+);
+
 CREATE INDEX IF NOT EXISTS idx_rr_scope ON runrate_updates(metric_scope, metric_type, status);
 CREATE INDEX IF NOT EXISTS idx_rr_official ON runrate_updates(is_official, as_of_end);
 CREATE INDEX IF NOT EXISTS idx_rq_status ON review_queue(status);
+CREATE INDEX IF NOT EXISTS idx_sc_status ON source_candidates(status);
+CREATE INDEX IF NOT EXISTS idx_anom_status ON anomaly_queue(status);
 """
