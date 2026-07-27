@@ -401,3 +401,115 @@ points:
     verification_reason: "월 매출 $2B 를 12배 한 연환산 계산값(공식 ARR 아님)"
     source_note: "파생 계산값 — 원본은 corroborated 월매출 관측치."
     evidence_note: "$2B/월 × 12 = $24B 연환산(파생 계산값 — 공식 ARR 로 표시하지 않음)."
+
+  # ── OpenAI 보도값(reported, 공식 아님 → reported 선). 매체 보도·회사발언 재인용, corroborated ──
+  - company: openai
+    group: reported
+    metric_type: arr
+    value_low_usd_bn: 3.4
+    qualifier: approximately
+    as_of_start: "2024-06-30"
+    as_of_end: "2024-06-30"
+    date_precision: day
+    published_at: "2024-06-30"
+    source_name: "The Information (2024-06, via Epoch AI 재인용)"
+    source_url: "https://epoch.ai/data-insights/openai-revenue"
+    source_tier: B
+    source_type: reported
+    is_official: 0
+    verification_status: corroborated
+    verification_reason: "The Information 2024-06 보도(연환산 $3.4B) — Epoch AI 데이터셋으로 교차확인"
+    source_note: "The Information 2024-06 보도, Epoch AI 공개데이터셋 재인용(원문 직접 read 미수행)."
+    evidence_note: "2024년 6월경 연환산 매출 약 $3.4B(6개월간 2배 이상 증가)로 보도."
+  - company: openai
+    group: reported
+    metric_type: arr
+    value_low_usd_bn: 5.5
+    qualifier: approximately
+    as_of_start: "2024-12-31"
+    as_of_end: "2024-12-31"
+    date_precision: month_range
+    published_at: "2025-06-09"
+    source_name: "CNBC (2025-06-09 보도, '전년 약 $5.5B')"
+    source_url: "https://www.cnbc.com/2025/06/09/openai-hits-10-billion-in-annualized-revenue-fueled-by-chatgpt-growth.html"
+    source_tier: B
+    source_type: reported
+    is_official: 0
+    verification_status: corroborated
+    verification_reason: "CNBC 2025-06 보도에서 '전년 약 $5.5B' 로 언급 — 2024 말 기준 근사치"
+    source_note: "CNBC 2025-06-09 기사 내 '전년 약 $5.5B' 언급(원문 직접 read 미수행, 검색 인덱싱)."
+    evidence_note: "2024년경 연환산 약 $5.5B(2025-06 $10B 발표 시 전년 대비 근거로 언급)."
+  - company: openai
+    group: reported
+    metric_type: arr
+    value_low_usd_bn: 10
+    qualifier: exact
+    as_of_start: "2025-06-09"
+    as_of_end: "2025-06-09"
+    date_precision: day
+    published_at: "2025-06-09"
+    source_name: "CNBC / TechCrunch (OpenAI, $10B ARR)"
+    source_url: "https://www.cnbc.com/2025/06/09/openai-hits-10-billion-in-annualized-revenue-fueled-by-chatgpt-growth.html"
+    source_tier: B
+    source_type: reported_company_statement
+    is_official: 0
+    verification_status: corroborated
+    verification_reason: "OpenAI 발언을 CNBC·TechCrunch·Fortune·Sherwood 등 복수 매체가 보도($10B ARR, 2025-06-09)"
+    source_note: "OpenAI 회사 발언 → 복수 매체(CNBC/TechCrunch/Fortune 등) 보도. 원문 직접 read 미수행."
+    evidence_note: "2025-06-09 OpenAI 가 ARR $10B 도달 발표(전년 약 $5.5B 대비); 주간 활성 5억+·유료 비즈니스 300만."
+  - company: openai
+    group: reported
+    metric_type: arr
+    value_low_usd_bn: 13
+    qualifier: exact
+    as_of_start: "2025-08-01"
+    as_of_end: "2025-08-31"
+    date_precision: month_range
+    published_at: "2025-08-04"
+    source_name: "Tech Startups / Epoch AI ($13B ARR)"
+    source_url: "https://techstartups.com/2025/08/04/openai-raises-8-3b-in-new-funding-as-arr-hits-13b-on-track-for-20b-by-year-end/"
+    source_tier: B
+    source_type: reported
+    is_official: 0
+    verification_status: corroborated
+    verification_reason: "2025-08 ARR $13B 보도(연말 $20B 전망); Epoch AI 데이터셋 교차확인"
+    source_note: "2025-08 매체 보도 + Epoch AI 데이터셋 재인용(원문 직접 read 미수행)."
+    evidence_note: "2025년 8월 ARR 약 $13B 도달($8.3B 조달 라운드 시점), 연말 $20B 전망."
+
+  # ── OpenAI 외부추정(third_party_estimate → estimated 선). Sacra 추정, provisional ──
+  - company: openai
+    group: estimates_sacra
+    metric_type: arr
+    value_low_usd_bn: 4
+    qualifier: estimate
+    as_of_start: "2024-12-31"
+    as_of_end: "2024-12-31"
+    date_precision: month_range
+    published_at: "2025-01-15"
+    source_name: "Sacra (OpenAI 매출 추정)"
+    source_url: "https://sacra.com/c/openai/"
+    source_tier: C
+    source_type: third_party_estimate
+    is_estimate: 1
+    verification_status: provisional
+    verification_reason: "Sacra 외부 추정 — 2024 말 연환산 약 $4B"
+    source_note: "Sacra 추정치(sacra.com/c/openai). 공식 아님·원문 직접 read 미수행."
+    evidence_note: "Sacra 는 2024 말 OpenAI 연환산 매출을 약 $4B 로 추정."
+  - company: openai
+    group: estimates_sacra
+    metric_type: arr
+    value_low_usd_bn: 25
+    qualifier: estimate
+    as_of_start: "2026-02-01"
+    as_of_end: "2026-02-28"
+    date_precision: month_range
+    published_at: "2026-02-15"
+    source_name: "Sacra (OpenAI 매출 추정)"
+    source_url: "https://sacra.com/c/openai/"
+    source_tier: C
+    source_type: third_party_estimate
+    is_estimate: 1
+    verification_status: provisional
+    verification_reason: "Sacra 외부 추정 — 2026-02 연환산 약 $25B(2025말 $20B 대비 상승)"
+    source_note: "Sacra 추정치(sacra.com/c/openai). 공식 아님·원문 직접 read 미수행."
+    evidence_note: "Sacra 는 2026-02 OpenAI 연환산 매출을 약 $25B 로 추정(2025 말 $20B 에서 상승)."

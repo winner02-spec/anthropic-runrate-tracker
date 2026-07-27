@@ -46,9 +46,7 @@ export default function CompanyView({ cp }: { cp: CompanyPayload }) {
   const last = <T,>(a: T[]): T | null => (a.length ? a[a.length - 1] : null);
   const latestReported = last(cp.series.reported);
   const tickers = cp.series.estimated.filter(lc("tickertrends"));
-  const yipits = cp.series.estimated.filter(lc("yipit"));
-  const latestTicker = last(tickers);
-  const latestYipit = last(yipits);
+  const latestEstimate = last(cp.series.estimated);
   const latestMonthly = last(cp.series.monthly);
   const latestDerived = last(cp.series.derived);
 
@@ -84,15 +82,10 @@ export default function CompanyView({ cp }: { cp: CompanyPayload }) {
         )}
         <Stat label="최신 주요 매체 보도값" value={latestReported ? pointValueText(latestReported) : "—"}
               meta={latestReported ? `기준일 ${pointDate(latestReported)} · ${latestReported.source_name ?? ""}` : "보도값 없음"} />
-        {latestTicker && (
-          <Stat label="최신 TickerTrends 추정" value={pointValueText(latestTicker)}
-                meta={`기준일 ${pointDate(latestTicker)} · ${vsBadge(latestTicker.verification_status)}`}
-                cls={latestTicker.verification_status === "provisional" ? "warn" : ""} />
-        )}
-        {latestYipit && (
-          <Stat label="최신 Yipit 추정" value={pointValueText(latestYipit)}
-                meta={`기준일 ${pointDate(latestYipit)} · ${vsBadge(latestYipit.verification_status)}`}
-                cls={latestYipit.verification_status === "provisional" ? "warn" : ""} />
+        {latestEstimate && (
+          <Stat label="최신 외부 추정" value={pointValueText(latestEstimate)}
+                meta={`기준일 ${pointDate(latestEstimate)} · ${latestEstimate.source_name ?? ""} · ${vsBadge(latestEstimate.verification_status)}`}
+                cls={latestEstimate.verification_status === "provisional" ? "warn" : ""} />
         )}
         {estVel != null && (
           <Stat label="외부추정 성장속도(30일 환산)" value={usdBn(estVel)}

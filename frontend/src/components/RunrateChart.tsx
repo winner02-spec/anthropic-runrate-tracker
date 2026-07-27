@@ -10,6 +10,8 @@ const SERIES = {
   reported: { color: "var(--reported)", label: "주요 매체 보도", dashed: true, line: true },
   tickertrends: { color: "var(--estimate)", label: "TickerTrends 추정", dashed: true, line: true },
   yipit: { color: "#d98a00", label: "Yipit 추정", dashed: true, line: false },
+  sacra: { color: "#0ea5e9", label: "Sacra 추정", dashed: true, line: true },
+  estimate: { color: "var(--estimate)", label: "외부 추정", dashed: true, line: false },
   derived: { color: "#8b5cf6", label: "파생(월매출×12)", dashed: true, line: false },
 } as const;
 type SKind = keyof typeof SERIES;
@@ -24,11 +26,13 @@ const FILTERS: Array<[Filter, string]> = [
   ["estimates", "외부추정 포함"], ["derived", "파생값 포함"], ["target", "목표 포함"],
 ];
 
+const ESTIMATE_KINDS: SKind[] = ["tickertrends", "yipit", "sacra", "estimate"];
+
 function visibleKinds(f: Filter): Set<SKind> {
   if (f === "official") return new Set<SKind>(["official_current", "official_retro"]);
   if (f === "official_reported") return new Set<SKind>(["official_current", "official_retro", "reported"]);
   if (f === "derived") return new Set<SKind>(["official_current", "official_retro", "reported", "derived"]);
-  return new Set<SKind>(["official_current", "official_retro", "reported", "tickertrends", "yipit", "derived"]);
+  return new Set<SKind>(["official_current", "official_retro", "reported", ...ESTIMATE_KINDS, "derived"]);
 }
 
 function classify(p: Point): SKind | null {
@@ -38,7 +42,8 @@ function classify(p: Point): SKind | null {
   if (p.is_estimate) {
     if (src.includes("tickertrends")) return "tickertrends";
     if (src.includes("yipit")) return "yipit";
-    return "tickertrends";
+    if (src.includes("sacra")) return "sacra";
+    return "estimate";
   }
   if (p.is_target) return null; // 목표는 밴드로 별도
   return "reported";
@@ -59,7 +64,8 @@ export default function RunrateChart({ cp }: { cp: CompanyPayload }) {
     ...cp.series.official, ...cp.series.reported, ...cp.series.estimated, ...cp.series.derived,
   ];
   const grouped: Record<SKind, Point[]> = {
-    official_current: [], official_retro: [], reported: [], tickertrends: [], yipit: [], derived: [],
+    official_current: [], official_retro: [], reported: [], tickertrends: [], yipit: [],
+    sacra: [], estimate: [], derived: [],
   };
   for (const p of allPts) {
     const k = classify(p);
