@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- 매주 일요일 09:00 KST: 수집·backfill·검증·이상재계산·export·테스트 후 변경이 있을 때만 main push.
+     ※ 생성·plutil 검증까지만. 승인 전 launchctl load 금지.
+     ※ 기존 com.anthropic-runrate.weekly-backfill(일 09:00)을 대체한다 — 둘을 동시에 등록하지 말 것. -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.anthropic-runrate.weekly-update</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/zsh</string>
+    <string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/scripts/run_weekly_update.sh</string>
+  </array>
+  <key>StartCalendarInterval</key><array>
+    <dict><key>Weekday</key><integer>0</integer><key>Hour</key><integer>9</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
+  <key>StandardOutPath</key><string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/logs/launchd.weekly-update.log</string>
+  <key>StandardErrorPath</key><string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/logs/launchd.weekly-update.log</string>
+</dict></plist>

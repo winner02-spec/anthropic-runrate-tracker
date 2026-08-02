@@ -60,6 +60,15 @@
 - 소유 회사(`company_id`)는 탐지 시점에 기록한다. 레거시 오분류는 detail 문자열이 아니라 **연결 observation 재확인**으로만 정정하고
   (`scripts/migrate_anomaly_ownership.py`), 정정 이력을 `audit_json`(original/corrected/correction_reason/corrected_at/evidence)에 남긴다.
 
+## 주간 다이제스트(텔레그램)
+- 매주 일요일 10:00 KST, **지정 채널 1곳**에만 1회 게시. 같은 주 재발송은 `--force` 일 때만(주차 키로 차단).
+- 내용은 **직전 발송 스냅샷 대비 외부 추정치의 신규·변경만**. 공식값·월매출·파생·anomaly·review queue·provenance·배포시각은 기본 메시지에서 제외하고 대시보드 링크로 대체한다.
+- 증감은 **같은 기관(source)의 직전값과만** 계산한다(기관이 다르면 비교하지 않음). 회사별 최대 3건, 전체 10줄 내외.
+- `date_precision=unknown` 인 값은 '기준일 미상' 으로 표시하고 증감률을 만들지 않는다(신규로만 표기).
+- 공식값이 새로 발표된 주에만 마지막에 한 줄(`※ 공식 발표: …`)을 추가한다.
+- 기준선은 `digest_snapshots` 테이블에 저장한다. 최초 1회 `tracker digest-baseline` 으로 기준선을 잡아
+  **과거 데이터 최초 적재분이 '이번 주 신규'로 보고되지 않도록** 한다. 스냅샷은 실제 발송에 성공했을 때만 갱신한다(dry-run 은 기준선을 움직이지 않음).
+
 ## 한계·주의
 - 공개 데이터 기반이라 최신 공식 수치와 시차가 있을 수 있음.
 - Run-rate 는 연환산 스냅샷 — 회계 매출이 아님.

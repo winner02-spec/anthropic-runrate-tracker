@@ -9,7 +9,7 @@
 """
 from __future__ import annotations
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 DDL = """
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -217,6 +217,16 @@ CREATE TABLE IF NOT EXISTS anomaly_queue (
     last_seen_at           TEXT,             -- 마지막으로 재탐지된 시각
     age_days               INTEGER,          -- 상태 지속형(stale_90d 등) 경과일
     occurrence_count       INTEGER DEFAULT 1
+);
+
+-- 주간 다이제스트 기준선: 직전 발송 시점의 회사·기관별 최신값 스냅샷.
+-- 다음 발송은 '최근 7일 전체'가 아니라 이 스냅샷과의 차이만 보고한다.
+CREATE TABLE IF NOT EXISTS digest_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    taken_at               TEXT,
+    week_key               TEXT,
+    note                   TEXT,             -- initial_baseline | sent
+    payload_json           TEXT              -- {estimates:{slug|source:{...}}, official:{slug:{...}}}
 );
 
 -- HTTP 캐시(ETag/Last-Modified/content_hash 동일 시 재분석 스킵 → 토큰/비용 절감)

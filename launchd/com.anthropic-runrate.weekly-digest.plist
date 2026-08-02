@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- 매주 일요일 10:00 KST: 지정 텔레그램 채널 1곳에 주간 다이제스트 1회 게시.
+     대상은 .env 의 TELEGRAM_CHAT_ID 하나로 고정. TELEGRAM_ENABLED=false 면 dry-run 로그만.
+     ※ 생성·plutil 검증까지만. 승인 전 launchctl load 금지. -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.anthropic-runrate.weekly-digest</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/zsh</string>
+    <string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/scripts/run_weekly_digest.sh</string>
+  </array>
+  <key>StartCalendarInterval</key><array>
+    <dict><key>Weekday</key><integer>0</integer><key>Hour</key><integer>10</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
+  <key>StandardOutPath</key><string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/logs/launchd.weekly-digest.log</string>
+  <key>StandardErrorPath</key><string>/Users/baeeunbin/market-bots/anthropic-runrate-tracker/logs/launchd.weekly-digest.log</string>
+</dict></plist>

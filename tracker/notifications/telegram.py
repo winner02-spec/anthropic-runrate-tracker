@@ -80,9 +80,14 @@ def _record_sent(key: str, dry: bool) -> None:
 
 def send(text: str, force: bool = False) -> dict:
     """중복이면 skip. 키 없거나 비활성이면 dry-run. 반환: 상태 dict."""
-    key = _dedup_key(text)
+    return send_keyed(text, _dedup_key(text), force=force)
+
+
+def send_keyed(text: str, key: str, force: bool = False) -> dict:
+    """dedup 키를 직접 지정해 발송(주간 다이제스트는 '주차' 키로 1주 1회 보장).
+    같은 키가 이미 발송됐으면 force=True 일 때만 재발송."""
     if not force and _already_sent(key):
-        return {"status": "duplicate_skipped"}
+        return {"status": "duplicate_skipped", "key": key}
 
     token = config.env("TELEGRAM_BOT_TOKEN")
     chat = config.env("TELEGRAM_CHAT_ID")
@@ -95,7 +100,11 @@ def send(text: str, force: bool = False) -> dict:
     r = requests.post(f"https://api.telegram.org/bot{token}/sendMessage",
                       data={"chat_id": chat, "text": text, "disable_web_page_preview": True},
                       timeout=20)
-    ok = r.json().get("ok", False)
+    resp = r.json()
+    ok = resp.get("ok", False)
     if ok:
         _record_sent(key, dry=False)
-    return {"status": "sent" if ok else "failed", "resp": r.json()}
+        # 발송 추적용 message_id 만 반환(토큰·본문은 로그에 남기지 않음)
+        return {"status": "sent", "key": key,
+                "message_id": (resp.get("result") or {}).get("message_id")}
+    return {"status": "failed", "key": key, "error": resp.get("description")}

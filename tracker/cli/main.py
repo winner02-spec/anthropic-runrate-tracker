@@ -281,6 +281,70 @@ def cmd_dismiss_anomaly(args) -> int:
     return 0
 
 
+def cmd_weekly_digest(args) -> int:
+    """주간 다이제스트 — 기본은 dry-run(전문 출력). 실제 발송은 --send 명시 + TELEGRAM_ENABLED=true."""
+    from tracker.notifications import weekly
+    conn = _conn()
+    res = weekly.send_weekly(conn, dry_run=not args.send, force=args.force)
+    print(f"[weekly-digest {res['status']} · {res['week']}]")
+    print("-" * 60)
+    print(res["text"])
+    print("-" * 60)
+    if res["status"] == "duplicate_skipped":
+        print("이미 이번 주에 발송됨 — 재발송하려면 --force")
+    conn.close()
+    return 0
+
+
+def cmd_digest_baseline(args) -> int:
+    """최초 운영 기준선 저장 — 과거 데이터 최초 적재분을 '이번 주 신규'로 잡지 않게 한다."""
+    from tracker.notifications import weekly
+    conn = _conn()
+    created = weekly.ensure_baseline(conn)
+    snap = weekly.last_snapshot(conn) or {}
+    print("[OK] 기준선 " + ("신규 저장" if created else "이미 존재 — 유지"))
+    print(f"  기관별 추정 {len(snap.get('estimates', {}))}건 · 공식값 {len(snap.get('official', {}))}건")
+    conn.close()
+    return 0
+
+
+def cmd_notify_check(args) -> int:
+    """발송 설정 점검 — 토큰 값은 출력하지 않고 설정 여부·대상 채널 권한만 확인."""
+    import requests
+    token = config.env("TELEGRAM_BOT_TOKEN")
+    chat = config.env("TELEGRAM_CHAT_ID")
+    print("Telegram 발송 설정")
+    print(f"  TELEGRAM_BOT_TOKEN: {'설정됨' if token else '없음'}")
+    print(f"  TELEGRAM_CHAT_ID  : {chat or '없음'}")
+    print(f"  TELEGRAM_ENABLED  : {config.env('TELEGRAM_ENABLED', 'false')}"
+          f" ({'실제 발송' if config.telegram_enabled() else 'dry-run 전용'})")
+    if not (token and chat):
+        print("  → 토큰/채널 ID 미설정이라 권한 점검을 건너뜁니다.")
+        return 0
+    base = f"https://api.telegram.org/bot{token}"
+    try:
+        me = requests.get(f"{base}/getMe", timeout=15).json()
+        if not me.get("ok"):
+            print("  getMe 실패:", me.get("description")); return 1
+        bot = me["result"]
+        print(f"  봇: @{bot['username']} (id {bot['id']})")
+        ch = requests.get(f"{base}/getChat", params={"chat_id": chat}, timeout=15).json()
+        if not ch.get("ok"):
+            print("  getChat 실패:", ch.get("description")); return 1
+        print(f"  대상: {ch['result'].get('title')} · type={ch['result'].get('type')}")
+        mem = requests.get(f"{base}/getChatMember",
+                           params={"chat_id": chat, "user_id": bot["id"]}, timeout=15).json()
+        if mem.get("ok"):
+            m = mem["result"]
+            print(f"  권한: status={m.get('status')} · can_post_messages={m.get('can_post_messages')}")
+        else:
+            print("  getChatMember 실패:", mem.get("description"))
+    except requests.RequestException as e:
+        print("  네트워크 오류:", type(e).__name__)
+        return 1
+    return 0
+
+
 def cmd_export(args) -> int:
     conn = _conn()
     out = dashboard.write_dashboard(conn)
@@ -352,6 +416,12 @@ def build_parser() -> argparse.ArgumentParser:
     m.set_defaults(func=cmd_add_manual)
     sub.add_parser("export").set_defaults(func=cmd_export)
     sub.add_parser("health").set_defaults(func=cmd_health)
+    sub.add_parser("notify-check").set_defaults(func=cmd_notify_check)
+    sub.add_parser("digest-baseline").set_defaults(func=cmd_digest_baseline)
+    wd = sub.add_parser("weekly-digest")
+    wd.add_argument("--send", action="store_true", help="실제 발송(기본은 dry-run 전문 출력)")
+    wd.add_argument("--force", action="store_true", help="같은 주 재발송 허용")
+    wd.set_defaults(func=cmd_weekly_digest)
     an = sub.add_parser("anomalies")
     an.add_argument("--status", default="open", help="open|dismissed|reviewed|all")
     an.set_defaults(func=cmd_anomalies)
