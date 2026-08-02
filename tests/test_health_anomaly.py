@@ -75,6 +75,95 @@ def test_cross_source_gap_reported_as_dispersion_not_error(tmp_path):
     assert "오류 아님" in disp[0]["detail"]
 
 
+def _official(conn, cid, company, value, as_of, metric_type=config.MT_ARR):
+    now = db.now_kst()
+    db.insert(conn, "runrate_updates", {
+        "company": company, "company_id": cid, "metric_scope": config.SCOPE_COMPANY,
+        "metric_type": metric_type, "value_low_usd_bn": value, "value_high_usd_bn": None,
+        "qualifier": "exact", "as_of_start": as_of, "as_of_end": as_of, "published_at": as_of,
+        "date_precision": "day", "source_name": f"{company} (공식)", "source_type": "official_current",
+        "source_tier": "A", "is_official": 1, "is_estimate": 0, "is_target": 0,
+        "verification_status": config.VS_CORROBORATED, "status": config.STATUS_CONFIRMED,
+        "content_hash": f"off-{company}-{value}-{as_of}", "created_at": now, "updated_at": now})
+
+
+def test_recompute_twice_creates_no_duplicate_rows(tmp_path):
+    conn = _conn(tmp_path)
+    cid = db.company_id_by_slug(conn, "openai")
+    _official(conn, cid, "OpenAI", 20.0, "2025-12-31")          # 90일 이상 경과 → stale_90d
+    _est(conn, cid, 42.6, "2026-07-29", "TickerTrends (OpenAI ARR 추정)")   # 공식대비 +20%↑ → estimate_gap
+
+    first = health.record_anomalies(conn, health.detect_anomalies(conn, record=False))
+    n1 = db.fetchone(conn, "SELECT COUNT(*) FROM anomaly_queue")[0]
+    second = health.record_anomalies(conn, health.detect_anomalies(conn, record=False))
+    n2 = db.fetchone(conn, "SELECT COUNT(*) FROM anomaly_queue")[0]
+
+    assert first["inserted"] > 0
+    assert second["inserted"] == 0          # 2회차 신규 중복 0
+    assert second["updated"] == first["detected"]
+    assert n1 == n2                          # 새 행이 생기지 않는다
+    # 상태 지속형 경고는 새 행 대신 갱신(last_seen_at·age_days·occurrence_count)
+    stale = dict(db.fetchone(conn, "SELECT * FROM anomaly_queue WHERE anomaly_type='stale_90d'"))
+    assert stale["age_days"] and stale["age_days"] >= 90
+    assert stale["last_seen_at"] and stale["occurrence_count"] == 2
+    assert stale["anomaly_key"].startswith(f"{cid}|stale_90d|")
+
+
+def test_ownership_resolved_from_linked_observations(tmp_path):
+    conn = _conn(tmp_path)
+    oai = db.company_id_by_slug(conn, "openai")
+    anth = db.company_id_by_slug(conn, "anthropic")
+    _official(conn, oai, "OpenAI", 20.0, "2025-12-31")
+    _est(conn, oai, 42.6, "2026-07-29", "TickerTrends (OpenAI ARR 추정)")
+    _official(conn, anth, "Anthropic", 47.0, "2026-05-15", metric_type=config.MT_RUNRATE)
+
+    # 레거시 일괄 backfill 로 company_id 가 anthropic 으로 잘못 채워진 OpenAI anomaly
+    conn.execute("INSERT INTO anomaly_queue(company_id, anomaly_type, detail, detected_at, status) "
+                 "VALUES(?,?,?,?, 'open')",
+                 (anth, "estimate_gap", "[openai] 추정 42.6 > 공식 20.0 +20%↑", db.now_kst()))
+    conn.commit()
+    aid = db.fetchone(conn, "SELECT id FROM anomaly_queue")[0]
+
+    res = health.correct_anomaly_ownership(conn, ids=[aid])[0]
+    assert res["action"] == "corrected" and res["to"] == oai
+    # detail 문자열이 아니라 연결 observation(공식·추정 id)으로 확인했는지
+    assert res["evidence"]["official_observation_id"] and res["evidence"]["estimate_observation_id"]
+
+    row = dict(db.fetchone(conn, "SELECT * FROM anomaly_queue WHERE id=?", (aid,)))
+    assert row["company_id"] == oai
+    audit = json.loads(row["audit_json"])
+    assert audit["original_company_id"] == anth
+    assert audit["corrected_company_id"] == oai
+    assert audit["correction_reason"] == "legacy_migration_company_mismatch"
+    assert audit["corrected_at"]
+
+
+def test_supersede_keeps_audit_and_is_not_reopened(tmp_path):
+    conn = _conn(tmp_path)
+    cid = db.company_id_by_slug(conn, "openai")
+    _official(conn, cid, "OpenAI", 20.0, "2025-12-31")
+    _est(conn, cid, 42.6, "2026-07-29", "TickerTrends (OpenAI ARR 추정)")
+    health.detect_anomalies(conn, record=True)
+    gap = dict(db.fetchone(conn, "SELECT * FROM anomaly_queue WHERE anomaly_type='estimate_gap'"))
+
+    # 중복으로 쌓였다고 가정한 옛 행(key 없음) → superseded
+    conn.execute("INSERT INTO anomaly_queue(company_id, anomaly_type, detail, detected_at, status) "
+                 "VALUES(?,?,?,?, 'open')",
+                 (cid, "estimate_gap", "[openai] 추정 42.6 > 공식 20.0 +20%↑", db.now_kst()))
+    conn.commit()
+    old_id = db.fetchone(conn, "SELECT id FROM anomaly_queue ORDER BY id DESC LIMIT 1")[0]
+
+    res = health.supersede_anomaly(conn, old_id, gap["id"])
+    assert res["status"] == "superseded" and res["superseded_by"] == gap["id"]
+    assert res["dismiss_reason"] == "duplicate_recompute"
+    audit = json.loads(res["audit_json"])
+    assert audit["original_detail"] and audit["original_status"] == "open"
+
+    # 재계산해도 superseded 를 되살리지 않는다
+    health.detect_anomalies(conn, record=True)
+    assert dict(db.fetchone(conn, "SELECT * FROM anomaly_queue WHERE id=?", (old_id,)))["status"] == "superseded"
+
+
 def test_dismiss_preserves_audit_and_is_not_regenerated(tmp_path):
     conn = _conn(tmp_path)
     cid = db.company_id_by_slug(conn, "openai")

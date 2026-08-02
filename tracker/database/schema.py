@@ -9,7 +9,7 @@
 """
 from __future__ import annotations
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 DDL = """
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -206,11 +206,17 @@ CREATE TABLE IF NOT EXISTS anomaly_queue (
     detail                 TEXT,
     related_id             INTEGER,
     detected_at            TEXT,
-    status                 TEXT DEFAULT 'open',  -- open|reviewed|dismissed
-    -- 오탐 정리: 레코드를 삭제하지 않고 dismissed 로 남기고 사유·시각·원 탐지값을 감사 기록으로 보존
-    dismiss_reason         TEXT,             -- 예: cross_source_not_comparable
+    status                 TEXT DEFAULT 'open',  -- open|reviewed|dismissed|superseded
+    -- 오탐 정리: 레코드를 삭제하지 않고 dismissed/superseded 로 남기고 사유·시각·원 탐지값을 감사 기록으로 보존
+    dismiss_reason         TEXT,             -- 예: cross_source_not_comparable | duplicate_recompute
     dismissed_at           TEXT,
-    audit_json             TEXT              -- 원 탐지값·비교 대상(JSON, 변경 금지)
+    audit_json             TEXT,             -- 원 탐지값·비교 대상·소유 회사 정정 이력(JSON, 변경 금지)
+    superseded_by          INTEGER,          -- 중복 정리 시 살아남은 레코드 id
+    -- 재계산 중복 방지: 같은 원인·같은 observation 이면 새 행 대신 기존 행을 갱신
+    anomaly_key            TEXT,             -- company_id|type|metric_type|source|observation ids
+    last_seen_at           TEXT,             -- 마지막으로 재탐지된 시각
+    age_days               INTEGER,          -- 상태 지속형(stale_90d 등) 경과일
+    occurrence_count       INTEGER DEFAULT 1
 );
 
 -- HTTP 캐시(ETag/Last-Modified/content_hash 동일 시 재분석 스킵 → 토큰/비용 절감)
@@ -228,4 +234,5 @@ CREATE INDEX IF NOT EXISTS idx_rr_official ON runrate_updates(is_official, as_of
 CREATE INDEX IF NOT EXISTS idx_rq_status ON review_queue(status);
 CREATE INDEX IF NOT EXISTS idx_sc_status ON source_candidates(status);
 CREATE INDEX IF NOT EXISTS idx_anom_status ON anomaly_queue(status);
+-- anomaly_key 인덱스는 컬럼 ALTER 이후 db.migrate 에서 생성(순서 의존).
 """

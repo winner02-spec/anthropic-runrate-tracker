@@ -42,7 +42,9 @@ _MIGRATIONS = {
     "review_queue": [_CID],
     "source_candidates": [_CID],
     "anomaly_queue": [_CID, ("dismiss_reason", "TEXT"), ("dismissed_at", "TEXT"),
-                      ("audit_json", "TEXT")],
+                      ("audit_json", "TEXT"), ("superseded_by", "INTEGER"),
+                      ("anomaly_key", "TEXT"), ("last_seen_at", "TEXT"),
+                      ("age_days", "INTEGER"), ("occurrence_count", "INTEGER DEFAULT 1")],
     "classification_feedback": [_CID],
     "ingestion_runs": [("mode", "TEXT"), ("skipped_cached", "INTEGER DEFAULT 0"),
                        ("api_calls", "INTEGER DEFAULT 0"), ("est_tokens", "INTEGER DEFAULT 0")],
@@ -139,6 +141,8 @@ def migrate(conn: sqlite3.Connection) -> None:
         for name, decl in cols:
             if name not in existing:
                 conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {decl}")
+    # 컬럼 ALTER 이후에만 만들 수 있는 인덱스
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_anom_key ON anomaly_queue(anomaly_key)")
     conn.commit()
     _migrate_companies(conn)
 

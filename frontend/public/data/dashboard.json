@@ -2,7 +2,7 @@
   "schema": "0.3",
   "display_name": "Frontier AI Revenue Tracker",
   "note": "Anthropic·OpenAI 의 공식 Revenue Run-rate/ARR·외부추정·목표·밸류에이션을 분리 추적·비교합니다.",
-  "generated_kst": "2026-08-02 16:32",
+  "generated_kst": "2026-08-02 16:44",
   "company_order": [
     "anthropic",
     "openai"
@@ -808,7 +808,7 @@
       },
       "freshness": {
         "latest_official_as_of": "2026-05-28",
-        "generated_kst": "2026-08-02 16:32"
+        "generated_kst": "2026-08-02 16:44"
       }
     },
     "openai": {
@@ -1623,7 +1623,7 @@
       },
       "freshness": {
         "latest_official_as_of": "2025-12-31",
-        "generated_kst": "2026-08-02 16:32"
+        "generated_kst": "2026-08-02 16:44"
       }
     }
   },

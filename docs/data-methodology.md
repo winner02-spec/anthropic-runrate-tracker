@@ -43,6 +43,23 @@
 ## 제품 기여(Product Contribution)
 - `제품 Run-rate / 전체 Anthropic Run-rate`. 두 숫자의 기준일이 다르면 경고(date_mismatch).
 
+## 외부 추정치 — 기관별 분리
+- 외부 추정(third_party_estimate)은 **기관(source_name)별로 별도 시계열**로 다룬다. TickerTrends·Sacra·Yipit·Funda 를 하나의 선으로 잇지 않는다.
+- `latest_estimates_by_source`: 기관별 최신 추정 1건씩(기준일 최신순). `estimate_divergence`: 기관 간 최고/최저·편차(어느 쪽이 옳은지는 판단하지 않음).
+- 원자료·산정 방법·기준일이 공개되지 않은 추정은 `date_precision=unknown` + `verification_status=provisional` 로 저장하고 **'추정 후보'** 로만 표시한다(차트에서는 선 없이 마커, 카드에는 "기준일 미상").
+
+## 이상 탐지(anomaly_queue)
+- 이상은 **자동 삭제·수정하지 않는다.** 정리는 status 로만 한다: `open` → `dismissed`(오탐) / `superseded`(중복) / `reviewed`.
+  정리 시 `dismiss_reason`·`dismissed_at`·`superseded_by` 와 함께 **원 탐지값을 `audit_json` 에 보존**한다.
+- **비교 범위**: `estimate_drop`(추정 하락)은 `company_id` · `metric_type` · `source_name`(=산정기관/방법론 시계열) 이 모두 같고
+  **기준일이 명확한**(`date_precision != unknown`) observation 끼리만 판정한다. 기관이 다른 값의 차이는 하락이 아니다.
+- **기관 간 격차**는 오류가 아니라 안내용으로 `estimate_dispersion`(기본 임계 20%) 으로 분리 기록한다.
+- **재계산 중복 방지**: `anomaly_key = company_id | anomaly_type | metric_type | source | 기준 observation id` 로 같은 이상을 같은 행에 묶는다.
+  값·경과일처럼 매 실행 바뀌는 값은 key 에 넣지 않고, 재탐지 시 `detail` · `last_seen_at` · `age_days` · `occurrence_count` 만 갱신한다(새 행 생성 없음).
+  이미 `dismissed`/`superseded` 인 건은 재계산해도 다시 `open` 으로 되살리지 않는다.
+- 소유 회사(`company_id`)는 탐지 시점에 기록한다. 레거시 오분류는 detail 문자열이 아니라 **연결 observation 재확인**으로만 정정하고
+  (`scripts/migrate_anomaly_ownership.py`), 정정 이력을 `audit_json`(original/corrected/correction_reason/corrected_at/evidence)에 남긴다.
+
 ## 한계·주의
 - 공개 데이터 기반이라 최신 공식 수치와 시차가 있을 수 있음.
 - Run-rate 는 연환산 스냅샷 — 회계 매출이 아님.
