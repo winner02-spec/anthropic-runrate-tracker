@@ -45,4 +45,27 @@ describe("RunrateChart", () => {
     const { container } = render(<RunrateChart cp={cp} />);
     expect(container.querySelector("rect")).toBeTruthy();   // 파생 마커 존재
   });
+
+  it("기관별 외부추정은 별도 계열 — Funda 는 선 없이 마커만", () => {
+    const est = (v: number, d: string, src: string, prec = "day") => ({
+      value_low_usd_bn: v, value_high_usd_bn: null, qualifier: "estimate" as const,
+      as_of_end: d, published_at: d, is_estimate: 1, metric_type: "arr",
+      date_precision: prec, source_name: src, verification_status: "provisional" as const,
+    });
+    const cp: CompanyPayload = {
+      ...EMPTY,
+      series: { ...EMPTY.series, estimated: [
+        est(33, "2026-05-30", "TickerTrends (OpenAI ARR 추정)"),
+        est(42.6, "2026-07-29", "TickerTrends (OpenAI ARR 추정)"),
+        est(25, "2026-02-28", "Sacra (OpenAI 매출 추정)"),
+        est(49, "2026-07-28", "Funda (Axios 2026-07-28 재인용, 원자료 미확인)", "unknown"),
+      ] },
+    };
+    const { container } = render(<RunrateChart cp={cp} />);
+    // Funda 는 정사각 마커(rect) 로만 표시 — 다른 기관과 한 선으로 연결하지 않는다
+    expect(container.querySelectorAll("rect").length).toBe(1);
+    // TickerTrends 2점만 선(path)으로 연결(Sacra 1점·Funda 는 선 없음)
+    expect(container.querySelectorAll("path").length).toBe(1);
+    expect(screen.getByText(/Funda 추정 후보/)).toBeTruthy();
+  });
 });

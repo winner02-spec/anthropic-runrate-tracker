@@ -511,5 +511,154 @@ points:
     is_estimate: 1
     verification_status: provisional
     verification_reason: "Sacra 외부 추정 — 2026-02 연환산 약 $25B(2025말 $20B 대비 상승)"
-    source_note: "Sacra 추정치(sacra.com/c/openai). 공식 아님·원문 직접 read 미수행."
+    source_note: "Sacra 추정치(sacra.com/c/openai). 공식 아님·원문 직접 read 미수행. TickerTrends·Funda 와 산정기관·기준일이 달라 같은 선으로 연결하지 않음."
     evidence_note: "Sacra 는 2026-02 OpenAI 연환산 매출을 약 $25B 로 추정(2025 말 $20B 에서 상승)."
+
+  # ── OpenAI 외부추정(third_party_estimate) — TickerTrends 시계열, provisional ──
+  # canonical: TickerTrends Research "OpenAI ARR Growth Accelerated Into July" (2026-07-30)
+  #   https://blog.tickertrends.io/p/openai-arr-growth-accelerated-july-2026
+  # 원문 직접 fetch 로 5개 포인트 확인(evidence_text = 원문 표기 그대로).
+  # TickerTrends 가 산정 방법·기초자료를 공개하지 않아 verification_status=provisional 유지(외부추정선 전용).
+  # Sacra·Funda 와 하나의 선으로 연결하지 않음.
+  - company: openai
+    group: estimates_tickertrends
+    metric_type: arr
+    value_low_usd_bn: 33.0
+    qualifier: estimate
+    as_of_start: "2026-05-30"
+    as_of_end: "2026-05-30"
+    date_precision: day
+    published_at: "2026-07-30"
+    source_name: "TickerTrends (OpenAI ARR 추정)"
+    source_url: "https://blog.tickertrends.io/p/openai-arr-growth-accelerated-july-2026"
+    source_tier: C
+    source_type: third_party_estimate
+    is_estimate: 1
+    verification_status: provisional
+    verification_reason: "원문(2026-07-30) 직접 확인 — 다만 TickerTrends 가 산정 방법·기초자료를 공개하지 않아 provisional"
+    source_note: "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님."
+    evidence_note: "원문 목록의 2026-05-30 시점 추정치 $33.0B(YoY 223%)."
+    evidence_text: "May 30: $33.0B ARR, 223% YoY"
+    confidence_score: 0.4
+  - company: openai
+    group: estimates_tickertrends
+    metric_type: arr
+    value_low_usd_bn: 37.3
+    qualifier: estimate
+    as_of_start: "2026-06-25"
+    as_of_end: "2026-06-25"
+    date_precision: day
+    published_at: "2026-07-30"
+    source_name: "TickerTrends (OpenAI ARR 추정)"
+    source_url: "https://blog.tickertrends.io/p/openai-arr-growth-accelerated-july-2026"
+    source_tier: C
+    source_type: third_party_estimate
+    is_estimate: 1
+    verification_status: provisional
+    verification_reason: "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional"
+    source_note: "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님."
+    evidence_note: "원문 목록의 2026-06-25 시점 추정치 $37.3B(YoY 245%)."
+    evidence_text: "June 25: $37.3B ARR, 245% YoY"
+    confidence_score: 0.4
+  - company: openai
+    group: estimates_tickertrends
+    metric_type: arr
+    value_low_usd_bn: 38.5
+    qualifier: estimate
+    as_of_start: "2026-07-02"
+    as_of_end: "2026-07-02"
+    date_precision: day
+    published_at: "2026-07-30"
+    source_name: "TickerTrends (OpenAI ARR 추정)"
+    source_url: "https://blog.tickertrends.io/p/openai-arr-growth-accelerated-july-2026"
+    source_tier: C
+    source_type: third_party_estimate
+    is_estimate: 1
+    verification_status: provisional
+    verification_reason: "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional"
+    source_note: "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님."
+    evidence_note: "원문 목록의 2026-07-02 시점 추정치 $38.5B(YoY 281%)."
+    evidence_text: "July 2: $38.5B ARR, 281% YoY"
+    confidence_score: 0.4
+  - company: openai
+    group: estimates_tickertrends
+    metric_type: arr
+    value_low_usd_bn: 40.3
+    qualifier: estimate
+    as_of_start: "2026-07-09"
+    as_of_end: "2026-07-09"
+    date_precision: day
+    published_at: "2026-07-30"
+    source_name: "TickerTrends (OpenAI ARR 추정)"
+    source_url: "https://blog.tickertrends.io/p/openai-arr-growth-accelerated-july-2026"
+    source_tier: C
+    source_type: third_party_estimate
+    is_estimate: 1
+    verification_status: provisional
+    verification_reason: "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional"
+    source_note: "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님."
+    evidence_note: "원문 목록의 2026-07-09 시점 추정치 $40.3B(YoY 282% — 원문 기준 YoY 정점)."
+    evidence_text: "July 9: $40.3B ARR, 282% YoY"
+    confidence_score: 0.4
+  - company: openai
+    group: estimates_tickertrends
+    metric_type: arr
+    value_low_usd_bn: 42.6
+    qualifier: estimate
+    as_of_start: "2026-07-29"
+    as_of_end: "2026-07-29"
+    date_precision: day
+    published_at: "2026-07-30"
+    source_name: "TickerTrends (OpenAI ARR 추정)"
+    source_url: "https://blog.tickertrends.io/p/openai-arr-growth-accelerated-july-2026"
+    source_tier: C
+    source_type: third_party_estimate
+    is_estimate: 1
+    verification_status: provisional
+    verification_reason: "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional"
+    source_note: "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님."
+    evidence_note: "원문 최신 read: 2026-07-29 $42.6B(YoY 259%). 6/25 $37.3B 대비 약 $5.2B 증가."
+    evidence_text: "Our latest OpenAI ARR read reached $42.6B on July 29"
+    confidence_score: 0.4
+
+  # ── Funda 추정 후보(Axios 2026-07-28 재인용) — 원자료·산정방법 미확인 → provisional, 별도 마커 ──
+  # 직접 확인 실패: axios.com 기사 직접 fetch 403. 재인용 2건(IBTimes 2026-07-28 / TIPP Insights 2026-07-28)으로 수치 교차확인.
+  # Funda 의 기준일(as-of)·산정방법이 공개되지 않아 date_precision=unknown. 시계열 선으로 연결하지 않음(마커만).
+  - company: openai
+    group: estimates_funda
+    metric_type: arr
+    value_low_usd_bn: 49
+    qualifier: approximately
+    as_of_start: "2026-07-28"
+    as_of_end: "2026-07-28"
+    date_precision: unknown
+    published_at: "2026-07-28"
+    source_name: "Funda (Axios 2026-07-28 재인용, 원자료 미확인)"
+    source_url: "https://www.axios.com/2026/07/28/anthropic-openai-revenue-mcdonalds-starbucks-yum"
+    source_tier: C
+    source_type: third_party_estimate
+    is_estimate: 1
+    verification_status: provisional
+    verification_reason: "Funda 원자료·산정방법 미확인. Axios 원문 직접 fetch 403 — 재인용 2건으로 수치만 교차확인"
+    source_note: "1차: Axios 2026-07-28 'Anthropic, OpenAI blow past Starbucks, McDonald's amid AI boom'(직접 fetch 403). 재인용: IBTimes 2026-07-28 / TIPP Insights 2026-07-28. 원자료는 AI 투자리서치 플랫폼 Funda, Tae Kim(Key Context) 소개."
+    evidence_note: "재인용 보도 기준 Anthropic·OpenAI 합계 연환산 약 $120B, Anthropic 이 약 60%($71B) → OpenAI 약 $49B. 기준일·산정방법 미공개이므로 확정값·시계열로 취급하지 않음."
+    confidence_score: 0.25
+  - company: anthropic
+    group: estimates_funda
+    metric_type: revenue_run_rate
+    value_low_usd_bn: 71
+    qualifier: approximately
+    as_of_start: "2026-07-28"
+    as_of_end: "2026-07-28"
+    date_precision: unknown
+    published_at: "2026-07-28"
+    source_name: "Funda (Axios 2026-07-28 재인용, 원자료 미확인)"
+    source_url: "https://www.axios.com/2026/07/28/anthropic-openai-revenue-mcdonalds-starbucks-yum"
+    source_tier: C
+    source_type: third_party_estimate
+    is_estimate: 1
+    verification_status: provisional
+    verification_reason: "Funda 원자료·산정방법 미확인. Axios 원문 직접 fetch 403 — 재인용 2건으로 수치만 교차확인"
+    source_note: "1차: Axios 2026-07-28 보도(직접 fetch 403). 재인용: IBTimes 2026-07-28 / TIPP Insights 2026-07-28. 원자료는 AI 투자리서치 플랫폼 Funda, Tae Kim(Key Context) 소개."
+    evidence_note: "재인용 보도 기준 Anthropic 연환산 약 $71B(합계 약 $120B 의 약 60%). 기준일·산정방법 미공개 — TickerTrends 추정선과 별도 마커."
+    confidence_score: 0.25

@@ -70,9 +70,25 @@ export interface GrowthVelocity {
   implied_monthly_growth_pct: number | null; from: string; to: string; is_approximate: boolean; label: string;
 }
 
+export interface EstimateBySource {
+  source: string;
+  point: Point;
+}
+
+export interface EstimateDivergence {
+  high: { source: string; value_usd_bn: number; as_of?: string | null };
+  low: { source: string; value_usd_bn: number; as_of?: string | null };
+  spread_usd_bn: number;
+  spread_pct: number | null;
+  source_count: number;
+  note: string;
+}
+
 export interface Metrics {
   latest_official: Point | null;
   latest_estimate: Point | null;
+  latest_estimates_by_source?: EstimateBySource[];
+  estimate_divergence?: EstimateDivergence | null;
   official_estimate_gap:
     | { official: number; estimate: number; diff_usd_bn: number; diff_pct: number | null; note: string; official_as_of?: string; estimate_as_of?: string }
     | null;

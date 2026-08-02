@@ -11,6 +11,8 @@ const SERIES = {
   tickertrends: { color: "var(--estimate)", label: "TickerTrends 추정", dashed: true, line: true },
   yipit: { color: "#d98a00", label: "Yipit 추정", dashed: true, line: false },
   sacra: { color: "#0ea5e9", label: "Sacra 추정", dashed: true, line: true },
+  // Funda: 기준일·산정방법 미공개(원자료 미확인) → 선으로 연결하지 않고 마커만
+  funda: { color: "#ec4899", label: "Funda 추정 후보(원자료 미확인)", dashed: true, line: false },
   estimate: { color: "var(--estimate)", label: "외부 추정", dashed: true, line: false },
   derived: { color: "#8b5cf6", label: "파생(월매출×12)", dashed: true, line: false },
 } as const;
@@ -26,7 +28,7 @@ const FILTERS: Array<[Filter, string]> = [
   ["estimates", "외부추정 포함"], ["derived", "파생값 포함"], ["target", "목표 포함"],
 ];
 
-const ESTIMATE_KINDS: SKind[] = ["tickertrends", "yipit", "sacra", "estimate"];
+const ESTIMATE_KINDS: SKind[] = ["tickertrends", "yipit", "sacra", "funda", "estimate"];
 
 function visibleKinds(f: Filter): Set<SKind> {
   if (f === "official") return new Set<SKind>(["official_current", "official_retro"]);
@@ -43,6 +45,7 @@ function classify(p: Point): SKind | null {
     if (src.includes("tickertrends")) return "tickertrends";
     if (src.includes("yipit")) return "yipit";
     if (src.includes("sacra")) return "sacra";
+    if (src.includes("funda")) return "funda";
     return "estimate";
   }
   if (p.is_target) return null; // 목표는 밴드로 별도
@@ -65,7 +68,7 @@ export default function RunrateChart({ cp }: { cp: CompanyPayload }) {
   ];
   const grouped: Record<SKind, Point[]> = {
     official_current: [], official_retro: [], reported: [], tickertrends: [], yipit: [],
-    sacra: [], estimate: [], derived: [],
+    sacra: [], funda: [], estimate: [], derived: [],
   };
   for (const p of allPts) {
     const k = classify(p);
@@ -159,6 +162,11 @@ export default function RunrateChart({ cp }: { cp: CompanyPayload }) {
                       transform={`rotate(45 ${q.x} ${q.y})`} fill="var(--card)"
                       stroke={SERIES[kind].color} strokeWidth="2"
                       onMouseEnter={() => setHover(q)} onMouseLeave={() => setHover(null)} />
+              ) : kind === "funda" ? (
+                // Funda = 원자료·기준일 미확인 추정 후보 → 정사각 마커(선 연결 없음)
+                <rect key={i} x={q.x - 4} y={q.y - 4} width={8} height={8} fill="var(--card)"
+                      stroke={SERIES[kind].color} strokeWidth="2"
+                      onMouseEnter={() => setHover(q)} onMouseLeave={() => setHover(null)} />
               ) : (
                 <circle key={i} cx={q.x} cy={q.y} r={kind === "official_current" ? 5 : 4}
                         fill={kind === "official_current" ? SERIES[kind].color : "var(--card)"}
@@ -181,6 +189,8 @@ export default function RunrateChart({ cp }: { cp: CompanyPayload }) {
           {" "}· 신뢰도 {hover.p.confidence_score ?? "—"}
           {hover.kind === "official_retro" ? " · 회고값" : ""}
           {hover.kind === "derived" ? " · 월 매출을 12배 한 계산값(공식 ARR 아님)" : ""}
+          {hover.kind === "funda" ? " · 기준일·산정방법 미공개 추정 후보(시계열로 연결하지 않음)" : ""}
+          {hover.p.date_precision === "unknown" ? " · 기준일 미상" : ""}
           {" "}· <b>{VS_BADGE[hover.p.verification_status || "needs_review"]}</b>
           {hover.p.verification_status === "provisional" && hover.p.source_note ? ` · ${hover.p.source_note}` : ""}
         </div>
@@ -190,7 +200,9 @@ export default function RunrateChart({ cp }: { cp: CompanyPayload }) {
           <span key={k}><i style={{ background: SERIES[k].color }} />{SERIES[k].label}</span>
         ))}
         {showTarget && <span><i style={{ background: "var(--target)" }} />목표</span>}
-        <span style={{ color: "var(--muted)" }}>· 공식·보도·추정·파생은 선을 연결하지 않음</span>
+        <span style={{ color: "var(--muted)" }}>
+          · 공식·보도·추정·파생은 선을 연결하지 않음 · 외부추정은 기관별(TickerTrends/Sacra/Yipit/Funda)로 분리
+        </span>
       </div>
     </div>
   );

@@ -44,6 +44,41 @@ def latest_estimate(points: list[dict]) -> dict | None:
     return est[-1] if est else None
 
 
+def estimate_source(p: dict) -> str:
+    """추정 출처 표시명 → 기관명(괄호 앞). 예: 'TickerTrends (OpenAI ARR 추정)' → 'TickerTrends'."""
+    name = (p.get("source_name") or "출처 미상").strip()
+    return name.split("(")[0].strip() or name
+
+
+def latest_estimates_by_source(points: list[dict]) -> list[dict]:
+    """기관별 최신 외부추정(기준일 최신순). 기관이 다르면 하나의 시계열로 합치지 않는다."""
+    by: dict[str, dict] = {}
+    for p in _sorted_estimates(points):   # 기준일 오름차순 → 마지막이 기관별 최신
+        by[estimate_source(p)] = p
+    rows = [{"source": k, "point": v} for k, v in by.items()]
+    return sorted(rows, key=lambda r: _d(r["point"]["as_of_end"]), reverse=True)
+
+
+def estimate_divergence(points: list[dict]) -> dict | None:
+    """기관별 최신 추정치의 편차(기관 2곳 이상일 때). 어느 쪽이 옳다고 판단하지 않는다."""
+    rows = [(r["source"], _repr_value(r["point"]), r["point"].get("as_of_end"))
+            for r in latest_estimates_by_source(points) if _repr_value(r["point"]) is not None]
+    if len(rows) < 2:
+        return None
+    hi = max(rows, key=lambda t: t[1])
+    lo = min(rows, key=lambda t: t[1])
+    spread = round(hi[1] - lo[1], 3)
+    return {
+        "high": {"source": hi[0], "value_usd_bn": hi[1], "as_of": hi[2]},
+        "low": {"source": lo[0], "value_usd_bn": lo[1], "as_of": lo[2]},
+        "spread_usd_bn": spread,
+        "spread_pct": round(spread / lo[1] * 100, 1) if lo[1] else None,
+        "source_count": len(rows),
+        "note": "기관별 산정 방법·기준일이 달라 편차가 발생합니다. 단일 선으로 연결하지 않으며, "
+                "어느 추정이 맞는지 판단하지 않습니다(방법론 확인 필요).",
+    }
+
+
 def official_estimate_gap(points: list[dict]) -> dict | None:
     off = latest_official(points)
     est = latest_estimate(points)

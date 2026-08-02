@@ -23,6 +23,37 @@ def test_official_estimate_gap_separated():
     assert g["diff_usd_bn"] == -27
 
 
+def test_latest_estimate_by_source_separated():
+    # 기관이 다르면 하나의 시계열로 합치지 않고 기관별 최신값을 각각 유지
+    tt_old = {"value_low_usd_bn": 33.0, "qualifier": "estimate", "as_of_end": "2026-05-30",
+              "is_estimate": 1, "source_name": "TickerTrends (OpenAI ARR 추정)"}
+    tt_new = {"value_low_usd_bn": 42.6, "qualifier": "estimate", "as_of_end": "2026-07-29",
+              "is_estimate": 1, "source_name": "TickerTrends (OpenAI ARR 추정)"}
+    sacra = {"value_low_usd_bn": 25, "qualifier": "estimate", "as_of_end": "2026-02-28",
+             "is_estimate": 1, "source_name": "Sacra (OpenAI 매출 추정)"}
+    funda = {"value_low_usd_bn": 49, "qualifier": "approximately", "as_of_end": "2026-07-28",
+             "is_estimate": 1, "source_name": "Funda (Axios 2026-07-28 재인용, 원자료 미확인)",
+             "date_precision": "unknown"}
+    rows = calc.latest_estimates_by_source([tt_old, tt_new, sacra, funda])
+    got = {r["source"]: r["point"]["value_low_usd_bn"] for r in rows}
+    assert got == {"TickerTrends": 42.6, "Sacra": 25, "Funda": 49}   # 기관별 최신 1개씩
+    assert rows[0]["source"] == "TickerTrends"                        # 기준일 최신순
+    assert rows[0]["point"]["as_of_end"] == "2026-07-29"
+
+
+def test_estimate_divergence_reports_spread_without_judging():
+    tt = {"value_low_usd_bn": 42.6, "qualifier": "estimate", "as_of_end": "2026-07-29",
+          "is_estimate": 1, "source_name": "TickerTrends (OpenAI ARR 추정)"}
+    sacra = {"value_low_usd_bn": 25, "qualifier": "estimate", "as_of_end": "2026-02-28",
+             "is_estimate": 1, "source_name": "Sacra (OpenAI 매출 추정)"}
+    d = calc.estimate_divergence([tt, sacra])
+    assert d["high"]["source"] == "TickerTrends" and d["low"]["source"] == "Sacra"
+    assert d["spread_usd_bn"] == 17.6
+    assert d["source_count"] == 2
+    # 기관이 1곳뿐이면 편차를 만들지 않는다
+    assert calc.estimate_divergence([tt]) is None
+
+
 def test_acceleration_insufficient():
     assert calc.acceleration([OFF1, OFF2])["state"] == "insufficient_data"
 

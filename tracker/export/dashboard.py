@@ -92,6 +92,9 @@ def build_payload(conn, company_id: int, slug: str, display_name: str) -> dict:
     metrics = {
         "latest_official": calc.latest_official(official),
         "latest_estimate": calc.latest_estimate(all_points),
+        # 기관별(TickerTrends/Sacra/Funda …) 최신 추정 — 하나의 선으로 합치지 않음
+        "latest_estimates_by_source": calc.latest_estimates_by_source(all_points),
+        "estimate_divergence": calc.estimate_divergence(all_points),
         "official_estimate_gap": calc.official_estimate_gap(all_points),
         "growth_velocity": calc.growth_velocity(all_points),
         "acceleration": calc.acceleration(all_points),

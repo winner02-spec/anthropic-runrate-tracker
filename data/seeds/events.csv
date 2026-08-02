@@ -2,3 +2,4 @@ company,event_date,event_type,title,description,source_url,content_hash
 anthropic,2026-02-12,funding,Series G — $30B at $380B post-money,"Led by GIC and Coatue.",https://www.anthropic.com/news/anthropic-raises-30-billion-series-g-funding-380-billion-post-money-valuation,
 anthropic,2026-05-28,funding,Series H announced,"Run-rate revenue crossed $47B earlier in May 2026.",https://www.anthropic.com/news/series-h,
 openai,2026-03-31,funding,$122B round at $852B post-money,"Monthly revenue crossed $2B; 900M weekly ChatGPT users; ads pilot >$100M ARR.",https://openai.com/index/accelerating-the-next-phase-ai/,
+openai,2026-07-29,revenue_acceleration_signal,CFO: July ARR topped all of Q2 (금액 미공개),"OpenAI CFO Sarah Friar 가 직원들에게 7월 annualized recurring revenue 가 Q2 전체를 넘어섰다고 설명(CNBC 2026-07-29). 금액·Q2 매출·지표 정의 미공개 → ARR 수치로 변환하지 않음(관측치 미생성).",https://www.cnbc.com/2026/07/29/openai-cfo-sarah-friar-tells-employees-arr-in-july-topped-all-of-q2.html,

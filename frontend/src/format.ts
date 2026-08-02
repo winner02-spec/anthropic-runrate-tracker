@@ -41,6 +41,11 @@ export function pointValueText(p: Point): string {
 }
 
 export function pointDate(p: Point): string {
+  // 기준일 미공개(외부 추정 후보 등)는 발표일만 쓰고 기준일을 단정하지 않는다
+  if (p.date_precision === "unknown") {
+    const ref = p.published_at || p.as_of_end || p.as_of_start;
+    return ref ? `${ref} 보도(기준일 미상)` : "기준일 미상";
+  }
   // 월범위(불확실) 기준일은 'YYYY년 M월 중' 으로 표시(임의 단일일로 단정하지 않음)
   if (p.date_precision === "month_range") {
     const ref = p.as_of_start || p.as_of_end;

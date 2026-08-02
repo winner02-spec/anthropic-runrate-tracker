@@ -249,6 +249,38 @@ def cmd_health(args) -> int:
     return 0
 
 
+def cmd_anomalies(args) -> int:
+    conn = _conn()
+    rows = db.fetchall(conn, "SELECT a.*, c.slug FROM anomaly_queue a LEFT JOIN companies c "
+                             "ON c.id=a.company_id WHERE (?='all' OR a.status=?) ORDER BY a.id",
+                       (args.status, args.status))
+    print(f"anomaly_queue (status={args.status}) — {len(rows)}건")
+    for r in rows:
+        d = dict(r)
+        tail = ""
+        if d.get("status") == "dismissed":
+            tail = f"  ← dismissed({d.get('dismiss_reason')}) at {d.get('dismissed_at')}"
+        print(f"  #{d['id']} [{d.get('slug') or '—'}] {d['anomaly_type']}: {d['detail']}{tail}")
+    conn.close()
+    return 0
+
+
+def cmd_dismiss_anomaly(args) -> int:
+    """오탐 정리 — 삭제하지 않고 dismissed 로 남기고 원 탐지값을 audit_json 에 보존."""
+    from tracker import health
+    conn = _conn()
+    res = health.dismiss_anomaly(conn, args.id, args.reason)
+    if res is None:
+        print(f"[ERR] anomaly #{args.id} 없음")
+        conn.close()
+        return 1
+    print(f"[OK] anomaly #{res['id']} → status={res['status']} reason={res['dismiss_reason']} "
+          f"at={res['dismissed_at']}")
+    print(f"  보존된 원 탐지값: {res['audit_json']}")
+    conn.close()
+    return 0
+
+
 def cmd_export(args) -> int:
     conn = _conn()
     out = dashboard.write_dashboard(conn)
@@ -320,6 +352,13 @@ def build_parser() -> argparse.ArgumentParser:
     m.set_defaults(func=cmd_add_manual)
     sub.add_parser("export").set_defaults(func=cmd_export)
     sub.add_parser("health").set_defaults(func=cmd_health)
+    an = sub.add_parser("anomalies")
+    an.add_argument("--status", default="open", help="open|dismissed|reviewed|all")
+    an.set_defaults(func=cmd_anomalies)
+    da = sub.add_parser("dismiss-anomaly")
+    da.add_argument("id", type=int)
+    da.add_argument("--reason", required=True, help="예: cross_source_not_comparable")
+    da.set_defaults(func=cmd_dismiss_anomaly)
     sub.add_parser("status").set_defaults(func=cmd_status)
     return p
 

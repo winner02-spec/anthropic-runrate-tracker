@@ -9,7 +9,7 @@
 """
 from __future__ import annotations
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 DDL = """
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -202,11 +202,15 @@ CREATE TABLE IF NOT EXISTS classification_feedback (
 CREATE TABLE IF NOT EXISTS anomaly_queue (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     company_id             INTEGER REFERENCES companies(id),
-    anomaly_type           TEXT,             -- stale_90d|estimate_gap|estimate_drop|accel|lower_official|date_inversion|same_date_conflict|qualifier_simplified|official_estimate_mix|requote_dup
+    anomaly_type           TEXT,             -- stale_90d|estimate_gap|estimate_drop|estimate_dispersion|accel|lower_official|date_inversion|same_date_conflict|qualifier_simplified|official_estimate_mix|requote_dup
     detail                 TEXT,
     related_id             INTEGER,
     detected_at            TEXT,
-    status                 TEXT DEFAULT 'open'  -- open|reviewed|dismissed
+    status                 TEXT DEFAULT 'open',  -- open|reviewed|dismissed
+    -- 오탐 정리: 레코드를 삭제하지 않고 dismissed 로 남기고 사유·시각·원 탐지값을 감사 기록으로 보존
+    dismiss_reason         TEXT,             -- 예: cross_source_not_comparable
+    dismissed_at           TEXT,
+    audit_json             TEXT              -- 원 탐지값·비교 대상(JSON, 변경 금지)
 );
 
 -- HTTP 캐시(ETag/Last-Modified/content_hash 동일 시 재분석 스킵 → 토큰/비용 절감)

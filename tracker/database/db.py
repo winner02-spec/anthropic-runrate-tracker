@@ -41,7 +41,8 @@ _MIGRATIONS = {
     "source_events": [_CID],
     "review_queue": [_CID],
     "source_candidates": [_CID],
-    "anomaly_queue": [_CID],
+    "anomaly_queue": [_CID, ("dismiss_reason", "TEXT"), ("dismissed_at", "TEXT"),
+                      ("audit_json", "TEXT")],
     "classification_feedback": [_CID],
     "ingestion_runs": [("mode", "TEXT"), ("skipped_cached", "INTEGER DEFAULT 0"),
                        ("api_calls", "INTEGER DEFAULT 0"), ("est_tokens", "INTEGER DEFAULT 0")],
@@ -100,7 +101,11 @@ def _migrate_companies(conn: sqlite3.Connection) -> None:
         ensure_company(conn, slug, name, domain)
     anth = company_id_by_slug(conn, "anthropic")
     # 2) 기존 레코드 → anthropic (company_id NULL 인 것만)
+    #    anomaly_queue 는 제외 — 탐지 결과는 회사가 detail 로 판별되며, 일괄 anthropic 지정은 오라벨이 된다.
+    #    (탐지 시점에 company_id 를 직접 기록한다 → health.detect_anomalies)
     for table in _COMPANY_TABLES:
+        if table == "anomaly_queue":
+            continue
         if "company_id" in _columns(conn, table):
             conn.execute(f"UPDATE {table} SET company_id=? WHERE company_id IS NULL", (anth,))
     # 3) content_hash 회사 스코프 래핑 — 1회만(플래그로 재실행 방지)

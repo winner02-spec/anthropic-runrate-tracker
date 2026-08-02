@@ -1,11 +1,11 @@
-import type { CompanyPayload } from "../types";
+import type { CompanyPayload, Point } from "../types";
 import { usdBn, pct, pointValueText, pointDate, qualifierLabel } from "../format";
 import { dateToUtcEpoch } from "../dateutil";
 import RunrateChart from "./RunrateChart";
 
-function Stat({ label, value, meta, cls }: { label: string; value: string; meta?: string; cls?: string }) {
+function Stat({ label, value, meta, cls, title }: { label: string; value: string; meta?: string; cls?: string; title?: string }) {
   return (
-    <div className="card stat">
+    <div className="card stat" title={title}>
       <div className="label">{label}</div>
       <div className={"value " + (cls || "")}>{value}</div>
       {meta && <div className="meta">{meta}</div>}
@@ -46,9 +46,13 @@ export default function CompanyView({ cp }: { cp: CompanyPayload }) {
   const last = <T,>(a: T[]): T | null => (a.length ? a[a.length - 1] : null);
   const latestReported = last(cp.series.reported);
   const tickers = cp.series.estimated.filter(lc("tickertrends"));
-  const latestEstimate = last(cp.series.estimated);
   const latestMonthly = last(cp.series.monthly);
   const latestDerived = last(cp.series.derived);
+  // 기관별 최신 외부추정(TickerTrends/Sacra/Funda …) — 하나로 합치지 않고 카드도 기관별로 분리
+  const estBySource = m.latest_estimates_by_source ?? [];
+  const divergence = m.estimate_divergence;
+  // 기준일 미공개(date_precision=unknown) = 시계열 포인트가 아닌 '추정 후보'
+  const isCandidate = (p: Point) => p.date_precision === "unknown";
 
   function estVelocity(): number | null {
     if (tickers.length < 2) return null;
@@ -82,11 +86,14 @@ export default function CompanyView({ cp }: { cp: CompanyPayload }) {
         )}
         <Stat label="최신 주요 매체 보도값" value={latestReported ? pointValueText(latestReported) : "—"}
               meta={latestReported ? `기준일 ${pointDate(latestReported)} · ${latestReported.source_name ?? ""}` : "보도값 없음"} />
-        {latestEstimate && (
-          <Stat label="최신 외부 추정" value={pointValueText(latestEstimate)}
-                meta={`기준일 ${pointDate(latestEstimate)} · ${latestEstimate.source_name ?? ""} · ${vsBadge(latestEstimate.verification_status)}`}
-                cls={latestEstimate.verification_status === "provisional" ? "warn" : ""} />
-        )}
+        {estBySource.map(({ source, point }) => (
+          <Stat key={source}
+                label={`${source} ${isCandidate(point) ? "추정 후보" : "최신 추정"}`}
+                value={pointValueText(point)}
+                meta={`${pointDate(point)} · ${point.source_name ?? source} · ${vsBadge(point.verification_status)}`}
+                title={[point.source_note, point.evidence_note].filter(Boolean).join(" / ")}
+                cls={point.verification_status === "provisional" ? "warn" : ""} />
+        ))}
         {estVel != null && (
           <Stat label="외부추정 성장속도(30일 환산)" value={usdBn(estVel)}
                 meta="TickerTrends 최근 구간" cls={estVel >= 0 ? "up" : ""} />
@@ -118,6 +125,63 @@ export default function CompanyView({ cp }: { cp: CompanyPayload }) {
         <h2>Official vs Estimated Run-rate</h2>
         <p className="hint">공식(실선)·추정/보도(점선)·파생(다이아몬드)은 별도 시계열로, 하나의 선으로 연결하지 않습니다.</p>
         <RunrateChart cp={cp} />
+      </div>
+
+      <div className="card section">
+        <h2>최신 수준 해석</h2>
+        <p className="hint">
+          공식·파생·기관별 추정을 각각 그대로 나열합니다. 서로 다른 출처를 하나의 “현재 수준”으로 합치거나
+          단일 결론(정체/가속)으로 단정하지 않습니다.
+        </p>
+        <table>
+          <thead><tr><th>구분</th><th>값</th><th>기준일</th><th>출처</th><th>검증</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>공식 {off?.metric_type === "arr" ? "ARR" : "Run-rate"} 최신값</td>
+              <td>{off ? pointValueText(off) : "—"}</td>
+              <td>{off ? pointDate(off) : "—"}</td>
+              <td>{off?.source_name ?? "—"}</td>
+              <td>{vsBadge(off?.verification_status)}</td>
+            </tr>
+            {latestMonthly && (
+              <tr>
+                <td>공식 월매출 신호</td>
+                <td>{pointValueText(latestMonthly)}/월</td>
+                <td>{pointDate(latestMonthly)}</td>
+                <td>{latestMonthly.source_name ?? "—"}</td>
+                <td>{vsBadge(latestMonthly.verification_status)}</td>
+              </tr>
+            )}
+            {latestDerived && (
+              <tr>
+                <td className="warn">파생 연환산(월매출×12, 공식 ARR 아님)</td>
+                <td>{pointValueText(latestDerived)}</td>
+                <td>{pointDate(latestDerived)}</td>
+                <td>{latestDerived.source_name ?? "—"}</td>
+                <td>{vsBadge(latestDerived.verification_status)}</td>
+              </tr>
+            )}
+            {estBySource.map(({ source, point }) => (
+              <tr key={source}>
+                <td>{source} 외부 추정{isCandidate(point) ? " (후보)" : ""}</td>
+                <td>{pointValueText(point)}</td>
+                <td>{pointDate(point)}</td>
+                <td>{point.source_url
+                  ? <a href={point.source_url} target="_blank" rel="noreferrer">{point.source_name}</a>
+                  : (point.source_name ?? source)}</td>
+                <td>{vsBadge(point.verification_status)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {divergence && (
+          <p className="hint warn">
+            기관별 최신 추정 편차: {divergence.high.source} {usdBn(divergence.high.value_usd_bn)}
+            {" ↔ "}{divergence.low.source} {usdBn(divergence.low.value_usd_bn)}
+            {" "}(차이 {usdBn(divergence.spread_usd_bn)}{divergence.spread_pct != null ? ` · ${divergence.spread_pct}%` : ""},
+            {" "}{divergence.source_count}개 기관). {divergence.note}
+          </p>
+        )}
       </div>
 
       <div className="card section">
