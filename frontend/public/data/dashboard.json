@@ -2,7 +2,7 @@
   "schema": "0.3",
   "display_name": "Frontier AI Revenue Tracker",
   "note": "Anthropic·OpenAI 의 공식 Revenue Run-rate/ARR·외부추정·목표·밸류에이션을 분리 추적·비교합니다.",
-  "generated_kst": "2026-08-02 16:44",
+  "generated_kst": "2026-08-09 09:00",
   "company_order": [
     "anthropic",
     "openai"
@@ -803,12 +803,15 @@
         "needs_review_count": 0,
         "review_queue_count": 0,
         "uncertain_asof_count": 9,
-        "last_collect": "2026-07-27 14:03:21",
-        "last_errors": []
+        "last_collect": "2026-08-09 09:00:56",
+        "last_errors": [
+          "openai:OpenAI Newsroom: HTTPError('403 Client Error: Forbidden for url: https://openai.com/news')",
+          "openai:OpenAI Index: HTTPError('403 Client Error: Forbidden for url: https://openai.com/index')"
+        ]
       },
       "freshness": {
         "latest_official_as_of": "2026-05-28",
-        "generated_kst": "2026-08-02 16:44"
+        "generated_kst": "2026-08-09 09:00"
       }
     },
     "openai": {
@@ -1618,12 +1621,15 @@
         "needs_review_count": 0,
         "review_queue_count": 0,
         "uncertain_asof_count": 5,
-        "last_collect": "2026-07-27 14:03:21",
-        "last_errors": []
+        "last_collect": "2026-08-09 09:00:56",
+        "last_errors": [
+          "openai:OpenAI Newsroom: HTTPError('403 Client Error: Forbidden for url: https://openai.com/news')",
+          "openai:OpenAI Index: HTTPError('403 Client Error: Forbidden for url: https://openai.com/index')"
+        ]
       },
       "freshness": {
         "latest_official_as_of": "2025-12-31",
-        "generated_kst": "2026-08-02 16:44"
+        "generated_kst": "2026-08-09 09:00"
       }
     }
   },
