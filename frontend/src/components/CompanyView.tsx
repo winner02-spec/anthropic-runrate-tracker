@@ -1,7 +1,10 @@
+import { useState } from "react";
 import type { CompanyPayload, Point } from "../types";
-import { usdBn, pct, pointValueText, pointDate, qualifierLabel } from "../format";
+import { usdBn, pct, pointValueText, pointDate } from "../format";
 import { dateToUtcEpoch } from "../dateutil";
 import RunrateChart from "./RunrateChart";
+import Timeline from "./Timeline";
+import { timelinePoints, type Filter } from "../filters";
 
 function Stat({ label, value, meta, cls, title }: { label: string; value: string; meta?: string; cls?: string; title?: string }) {
   return (
@@ -37,6 +40,8 @@ const METRIC_LABEL: Record<string, string> = {
 };
 
 export default function CompanyView({ cp }: { cp: CompanyPayload }) {
+  // 필터는 차트와 타임라인이 함께 쓴다. 따로 두면 차트에 있는 점이 타임라인에 없게 된다.
+  const [filter, setFilter] = useState<Filter>("all");
   const m = cp.metrics;
   const off = m.latest_official;
   const gap = m.official_estimate_gap;
@@ -124,7 +129,7 @@ export default function CompanyView({ cp }: { cp: CompanyPayload }) {
       <div className="card section">
         <h2>Official vs Estimated Run-rate</h2>
         <p className="hint">공식(실선)·추정/보도(점선)·파생(다이아몬드)은 별도 시계열로, 하나의 선으로 연결하지 않습니다.</p>
-        <RunrateChart cp={cp} />
+        <RunrateChart cp={cp} filter={filter} setFilter={setFilter} />
       </div>
 
       <div className="card section">
@@ -218,26 +223,7 @@ export default function CompanyView({ cp }: { cp: CompanyPayload }) {
         ) : <div className="empty">제품별 공개 데이터 없음</div>}
       </div>
 
-      <div className="card section">
-        <h2>업데이트 타임라인</h2>
-        <table>
-          <thead><tr><th>발표일</th><th>기준일</th><th>값</th><th>구분</th><th>출처</th><th>근거</th></tr></thead>
-          <tbody>
-            {[...s.official, ...s.reported, ...s.estimated, ...s.derived, ...s.monthly, ...s.target]
-              .sort((a, b) => (b.published_at || "").localeCompare(a.published_at || ""))
-              .map((p, i) => (
-                <tr key={i}>
-                  <td>{p.published_at ?? "—"}</td>
-                  <td>{pointDate(p)}</td>
-                  <td>{pointValueText(p)}</td>
-                  <td><span className={"badge " + (p.source_tier || "D")}>{p.metric_type || p.source_type}</span> {qualifierLabel(p.qualifier)}</td>
-                  <td>{p.source_url ? <a href={p.source_url} target="_blank" rel="noreferrer">{p.source_name}</a> : (p.source_name ?? "—")}</td>
-                  <td style={{ maxWidth: 320, color: "var(--muted)" }}>{p.evidence_text}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+      <Timeline points={timelinePoints(cp, filter)} />
 
       <div className="card section">
         <h2>데이터 품질</h2>

@@ -2,7 +2,7 @@
   "schema": "0.3",
   "display_name": "Frontier AI Revenue Tracker",
   "note": "Anthropic·OpenAI 의 공식 Revenue Run-rate/ARR·외부추정·목표·밸류에이션을 분리 추적·비교합니다.",
-  "generated_kst": "2026-08-19 15:10",
+  "generated_kst": "2026-08-19 15:27",
   "company_order": [
     "anthropic",
     "openai"
@@ -38,7 +38,8 @@
             "verification_reason": "직접 기사 slug 미확보, 2025-09-26 발표+다수 recap 교차확인",
             "source_note": "Anthropic 2025-09-26 글로벌 리더십 발표에서 회고; PYMNTS/Bloomberg 등 recap 교차 인용",
             "evidence_note": "2024년 초(≈1월) run-rate 약 $87M로 복수 매체·recap이 교차 언급(원문 slug 미확보)",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 1.0,
@@ -64,7 +65,8 @@
             "verification_reason": "Series F 공식 원문에 '$1B(2025 초)' 직접 명시",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 5.0,
@@ -90,7 +92,8 @@
             "verification_reason": "Series F 공식 원문에 'over $5B(2025 8월)' 직접 명시",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 9.0,
@@ -116,7 +119,8 @@
             "verification_reason": "2026-04-06 보도 기사에 '$9B(2025말)' 회고 직접 명시",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 14.0,
@@ -142,7 +146,8 @@
             "verification_reason": "Series G 공식 원문 직접 확인",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 30.0,
@@ -168,7 +173,8 @@
             "verification_reason": "2026-04-06 기사에 Amodei가 '$30B 초과' 확인, 직접 URL",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 47.0,
@@ -194,7 +200,8 @@
             "verification_reason": "Series H 공식 원문 직접 확인",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           }
         ],
         "estimated": [
@@ -222,7 +229,8 @@
             "verification_reason": "사용자 제공 TickerTrends 이미지에서 값·날짜 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지(텔레그램 첨부)",
             "evidence_note": "이미지에서 2026-05-21 $54.6B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 67.4,
@@ -248,7 +256,8 @@
             "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지",
             "evidence_note": "이미지에서 2026-06-03 $67.4B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 70.5,
@@ -274,7 +283,8 @@
             "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지",
             "evidence_note": "이미지에서 2026-06-15 $70.5B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 69.6,
@@ -300,7 +310,8 @@
             "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지",
             "evidence_note": "이미지에서 2026-06-27 $69.6B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 71.9,
@@ -326,7 +337,8 @@
             "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지",
             "evidence_note": "이미지에서 2026-07-09 $71.9B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 69.0,
@@ -352,7 +364,8 @@
             "verification_reason": "사용자 제공 Yipit 인용 메모, 원문 URL 미확인",
             "source_note": "사용자 제공(YipitData 인용 메모)",
             "evidence_note": "약 $69.0B(2026-07-10) Yipit 추정으로 제공됨",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 74.3,
@@ -378,7 +391,8 @@
             "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지",
             "evidence_note": "이미지에서 2026-07-22 $74.3B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 71.0,
@@ -404,7 +418,8 @@
             "verification_reason": "Funda 원자료·산정방법 미확인. Axios 원문 직접 fetch 403 — 재인용 2건으로 수치만 교차확인",
             "source_note": "1차: Axios 2026-07-28 보도(직접 fetch 403). 재인용: IBTimes 2026-07-28 / TIPP Insights 2026-07-28. 원자료는 AI 투자리서치 플랫폼 Funda, Tae Kim(Key Context) 소개.",
             "evidence_note": "재인용 보도 기준 Anthropic 연환산 약 $71B(합계 약 $120B 의 약 60%). 기준일·산정방법 미공개 — TickerTrends 추정선과 별도 마커.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           }
         ],
         "reported": [
@@ -432,7 +447,8 @@
             "verification_reason": "Reuters exclusive 기사 본문에 직접 명시",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 3.0,
@@ -458,7 +474,8 @@
             "verification_reason": "Reuters exclusive 기사 본문에 직접 명시(reached $3B)",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 7.0,
@@ -484,7 +501,8 @@
             "verification_reason": "canonical Reuters 2025-10-23 인터뷰 + 2025-10-15 회사확인보도 교차확인(직접 slug 미확보)",
             "source_note": "canonical: Reuters 2025-10-23 경영진 직접 인터뷰 / supporting: Reuters 2025-10-15 회사 확인 보도",
             "evidence_note": "2025년 10월 run-rate가 $7B에 근접(approaching)한다고 회사 확인·경영진 인터뷰로 교차확인",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 19.0,
@@ -510,7 +528,8 @@
             "verification_reason": "Reuters Breakingviews 칼럼 확인, 직접 기사 slug 미확보",
             "source_note": "Reuters Breakingviews 2026-03-10 칼럼",
             "evidence_note": "2026년 2월 말 run-rate $19 billion(Reuters Breakingviews). 비공식성은 source_type=reported·confidence 로 표현.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 65.0,
@@ -536,7 +555,8 @@
             "verification_reason": "원문(CNBC/Bloomberg)은 자동 수집이 차단되어 직접 열지 못했으나, Reuters·TechCrunch·Fortune·Axios·Crowdfund Insider·PYMNTS 등 복수 매체가 같은 수치를 보도해 교차확인함",
             "source_note": "canonical: CNBC 2026-08-17 (투자자 업데이트 입수 보도) / supporting: Bloomberg·Reuters·Axios·TechCrunch·Fortune 동일 수치 보도",
             "evidence_note": "7월 말 기준 run-rate $65B 이상. 2분기 잠정 매출 $11.5B 이상(전년 동기 $787M). DB 의 공식 계열(2025-12 $9B → 2026-04 $30B → 2026-05 $47B)과 정합. 원문은 자동 수집 차단(403)이라 복수 매체로 교차확인",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-18 08:15:45"
           }
         ],
         "target": [
@@ -564,7 +584,8 @@
             "verification_reason": "Reuters 단독 보도를 Yahoo Finance·Investing.com·SeekingAlpha·Euronext 등이 동일 수치로 재인용",
             "source_note": "canonical: Reuters 2026-08-14 (소식통 2인 인용) / supporting: Yahoo Finance 재게재본에서 문장 직접 확인",
             "evidence_note": "2028년 매출 전망 $190B~$200B. 회사 공식 가이던스가 아니라 IPO 밸류에이션 산정에 쓰이는 내부 전망을 매체가 전한 것 — 실적이 아니라 목표 계열로만 둔다.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-19 15:09:08"
           }
         ],
         "derived": [],
@@ -679,7 +700,8 @@
           "verification_reason": "Series H 공식 원문 직접 확인",
           "source_note": null,
           "evidence_note": null,
-          "source_locator": null
+          "source_locator": null,
+          "created_at": "2026-07-27 14:33:37"
         },
         "latest_estimate": {
           "value_low_usd_bn": 71.0,
@@ -705,7 +727,8 @@
           "verification_reason": "Funda 원자료·산정방법 미확인. Axios 원문 직접 fetch 403 — 재인용 2건으로 수치만 교차확인",
           "source_note": "1차: Axios 2026-07-28 보도(직접 fetch 403). 재인용: IBTimes 2026-07-28 / TIPP Insights 2026-07-28. 원자료는 AI 투자리서치 플랫폼 Funda, Tae Kim(Key Context) 소개.",
           "evidence_note": "재인용 보도 기준 Anthropic 연환산 약 $71B(합계 약 $120B 의 약 60%). 기준일·산정방법 미공개 — TickerTrends 추정선과 별도 마커.",
-          "source_locator": null
+          "source_locator": null,
+          "created_at": "2026-08-02 16:14:11"
         },
         "latest_estimates_by_source": [
           {
@@ -734,7 +757,8 @@
               "verification_reason": "Funda 원자료·산정방법 미확인. Axios 원문 직접 fetch 403 — 재인용 2건으로 수치만 교차확인",
               "source_note": "1차: Axios 2026-07-28 보도(직접 fetch 403). 재인용: IBTimes 2026-07-28 / TIPP Insights 2026-07-28. 원자료는 AI 투자리서치 플랫폼 Funda, Tae Kim(Key Context) 소개.",
               "evidence_note": "재인용 보도 기준 Anthropic 연환산 약 $71B(합계 약 $120B 의 약 60%). 기준일·산정방법 미공개 — TickerTrends 추정선과 별도 마커.",
-              "source_locator": null
+              "source_locator": null,
+              "created_at": "2026-08-02 16:14:11"
             }
           },
           {
@@ -763,7 +787,8 @@
               "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
               "source_note": "사용자 제공 TickerTrends 이미지",
               "evidence_note": "이미지에서 2026-07-22 $74.3B 식별",
-              "source_locator": null
+              "source_locator": null,
+              "created_at": "2026-07-27 14:33:37"
             }
           },
           {
@@ -792,7 +817,8 @@
               "verification_reason": "사용자 제공 Yipit 인용 메모, 원문 URL 미확인",
               "source_note": "사용자 제공(YipitData 인용 메모)",
               "evidence_note": "약 $69.0B(2026-07-10) Yipit 추정으로 제공됨",
-              "source_locator": null
+              "source_locator": null,
+              "created_at": "2026-07-27 14:33:37"
             }
           }
         ],
@@ -891,7 +917,7 @@
       },
       "freshness": {
         "latest_official_as_of": "2026-05-28",
-        "generated_kst": "2026-08-19 15:10"
+        "generated_kst": "2026-08-19 15:27"
       }
     },
     "openai": {
@@ -924,7 +950,8 @@
             "verification_reason": "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인",
             "source_note": "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행.",
             "evidence_note": "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 00:59:20"
           },
           {
             "value_low_usd_bn": 6.0,
@@ -950,7 +977,8 @@
             "verification_reason": "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인",
             "source_note": "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행.",
             "evidence_note": "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 00:59:20"
           },
           {
             "value_low_usd_bn": 20.0,
@@ -976,7 +1004,8 @@
             "verification_reason": "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인",
             "source_note": "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행.",
             "evidence_note": "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 00:59:20"
           }
         ],
         "estimated": [
@@ -1004,7 +1033,8 @@
             "verification_reason": "Sacra 외부 추정 — 2024 말 연환산 약 $4B",
             "source_note": "Sacra 추정치(sacra.com/c/openai). 공식 아님·원문 직접 read 미수행.",
             "evidence_note": "Sacra 는 2024 말 OpenAI 연환산 매출을 약 $4B 로 추정.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 01:17:21"
           },
           {
             "value_low_usd_bn": 25.0,
@@ -1030,7 +1060,8 @@
             "verification_reason": "Sacra 외부 추정 — 2026-02 연환산 약 $25B(2025말 $20B 대비 상승)",
             "source_note": "Sacra 추정치(sacra.com/c/openai). 공식 아님·원문 직접 read 미수행.",
             "evidence_note": "Sacra 는 2026-02 OpenAI 연환산 매출을 약 $25B 로 추정(2025 말 $20B 에서 상승).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 01:17:21"
           },
           {
             "value_low_usd_bn": 33.0,
@@ -1056,7 +1087,8 @@
             "verification_reason": "원문(2026-07-30) 직접 확인 — 다만 TickerTrends 가 산정 방법·기초자료를 공개하지 않아 provisional",
             "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
             "evidence_note": "원문 목록의 2026-05-30 시점 추정치 $33.0B(YoY 223%).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           },
           {
             "value_low_usd_bn": 37.3,
@@ -1082,7 +1114,8 @@
             "verification_reason": "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional",
             "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
             "evidence_note": "원문 목록의 2026-06-25 시점 추정치 $37.3B(YoY 245%).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           },
           {
             "value_low_usd_bn": 38.5,
@@ -1108,7 +1141,8 @@
             "verification_reason": "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional",
             "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
             "evidence_note": "원문 목록의 2026-07-02 시점 추정치 $38.5B(YoY 281%).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           },
           {
             "value_low_usd_bn": 40.3,
@@ -1134,7 +1168,8 @@
             "verification_reason": "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional",
             "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
             "evidence_note": "원문 목록의 2026-07-09 시점 추정치 $40.3B(YoY 282% — 원문 기준 YoY 정점).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           },
           {
             "value_low_usd_bn": 49.0,
@@ -1160,7 +1195,8 @@
             "verification_reason": "Funda 원자료·산정방법 미확인. Axios 원문 직접 fetch 403 — 재인용 2건으로 수치만 교차확인",
             "source_note": "1차: Axios 2026-07-28 'Anthropic, OpenAI blow past Starbucks, McDonald's amid AI boom'(직접 fetch 403). 재인용: IBTimes 2026-07-28 / TIPP Insights 2026-07-28. 원자료는 AI 투자리서치 플랫폼 Funda, Tae Kim(Key Context) 소개.",
             "evidence_note": "재인용 보도 기준 Anthropic·OpenAI 합계 연환산 약 $120B, Anthropic 이 약 60%($71B) → OpenAI 약 $49B. 기준일·산정방법 미공개이므로 확정값·시계열로 취급하지 않음.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           },
           {
             "value_low_usd_bn": 42.6,
@@ -1186,7 +1222,8 @@
             "verification_reason": "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional",
             "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
             "evidence_note": "원문 최신 read: 2026-07-29 $42.6B(YoY 259%). 6/25 $37.3B 대비 약 $5.2B 증가.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           }
         ],
         "reported": [
@@ -1214,7 +1251,8 @@
             "verification_reason": "The Information 2024-06 보도(연환산 $3.4B) — Epoch AI 데이터셋으로 교차확인",
             "source_note": "The Information 2024-06 보도, Epoch AI 공개데이터셋 재인용(원문 직접 read 미수행).",
             "evidence_note": "2024년 6월경 연환산 매출 약 $3.4B(6개월간 2배 이상 증가)로 보도.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 01:17:21"
           },
           {
             "value_low_usd_bn": 5.5,
@@ -1240,7 +1278,8 @@
             "verification_reason": "CNBC 2025-06 보도에서 '전년 약 $5.5B' 로 언급 — 2024 말 기준 근사치",
             "source_note": "CNBC 2025-06-09 기사 내 '전년 약 $5.5B' 언급(원문 직접 read 미수행, 검색 인덱싱).",
             "evidence_note": "2024년경 연환산 약 $5.5B(2025-06 $10B 발표 시 전년 대비 근거로 언급).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 01:17:21"
           },
           {
             "value_low_usd_bn": 10.0,
@@ -1266,7 +1305,8 @@
             "verification_reason": "OpenAI 발언을 CNBC·TechCrunch·Fortune·Sherwood 등 복수 매체가 보도($10B ARR, 2025-06-09)",
             "source_note": "OpenAI 회사 발언 → 복수 매체(CNBC/TechCrunch/Fortune 등) 보도. 원문 직접 read 미수행.",
             "evidence_note": "2025-06-09 OpenAI 가 ARR $10B 도달 발표(전년 약 $5.5B 대비); 주간 활성 5억+·유료 비즈니스 300만.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 01:17:21"
           },
           {
             "value_low_usd_bn": 13.0,
@@ -1292,7 +1332,8 @@
             "verification_reason": "2025-08 ARR $13B 보도(연말 $20B 전망); Epoch AI 데이터셋 교차확인",
             "source_note": "2025-08 매체 보도 + Epoch AI 데이터셋 재인용(원문 직접 read 미수행).",
             "evidence_note": "2025년 8월 ARR 약 $13B 도달($8.3B 조달 라운드 시점), 연말 $20B 전망.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 01:17:21"
           },
           {
             "value_low_usd_bn": 40.0,
@@ -1318,7 +1359,8 @@
             "verification_reason": "원문(CNBC/Bloomberg)은 자동 수집이 차단되어 직접 열지 못했으나, Reuters·TechCrunch·Fortune·Axios·Crowdfund Insider·PYMNTS 등 복수 매체가 같은 수치를 보도해 교차확인함",
             "source_note": "canonical: Bloomberg 2026-08-13 (소식통 인용) / supporting: PYMNTS·Yahoo Finance·Benzinga·qz 동일 수치 재인용",
             "evidence_note": "run-rate $40B 돌파, 2025년 말($20B 초과) 대비 약 2배. 원문은 유료·자동 수집 차단이라 복수 매체로 교차확인",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-18 08:15:53"
           }
         ],
         "target": [],
@@ -1347,7 +1389,8 @@
             "verification_reason": "월 매출 $2B 를 12배 한 연환산 계산값(공식 ARR 아님)",
             "source_note": "파생 계산값 — 원본은 corroborated 월매출 관측치.",
             "evidence_note": "$2B/월 × 12 = $24B 연환산(파생 계산값 — 공식 ARR 로 표시하지 않음).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 00:59:20"
           }
         ],
         "monthly": [
@@ -1375,7 +1418,8 @@
             "verification_reason": "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+복수매체(CNBC/CoinDesk 등) 교차확인",
             "source_note": "OpenAI 공식 발표 URL 확인(WebSearch 인덱싱)+복수 매체 재인용. 페이지 직접 read 는 403 차단으로 미수행.",
             "evidence_note": "월 매출 $2B 돌파(2026-03-31 발표) — 공식 페이지 인덱싱+CNBC/CoinDesk 등 재인용 교차확인. 이는 월 매출이며 ARR 아님.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 00:59:20"
           }
         ]
       },
@@ -1510,7 +1554,8 @@
           "verification_reason": "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인",
           "source_note": "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행.",
           "evidence_note": "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님).",
-          "source_locator": null
+          "source_locator": null,
+          "created_at": "2026-07-28 00:59:20"
         },
         "latest_estimate": {
           "value_low_usd_bn": 42.6,
@@ -1536,7 +1581,8 @@
           "verification_reason": "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional",
           "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
           "evidence_note": "원문 최신 read: 2026-07-29 $42.6B(YoY 259%). 6/25 $37.3B 대비 약 $5.2B 증가.",
-          "source_locator": null
+          "source_locator": null,
+          "created_at": "2026-08-02 16:14:11"
         },
         "latest_estimates_by_source": [
           {
@@ -1565,7 +1611,8 @@
               "verification_reason": "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional",
               "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
               "evidence_note": "원문 최신 read: 2026-07-29 $42.6B(YoY 259%). 6/25 $37.3B 대비 약 $5.2B 증가.",
-              "source_locator": null
+              "source_locator": null,
+              "created_at": "2026-08-02 16:14:11"
             }
           },
           {
@@ -1594,7 +1641,8 @@
               "verification_reason": "Funda 원자료·산정방법 미확인. Axios 원문 직접 fetch 403 — 재인용 2건으로 수치만 교차확인",
               "source_note": "1차: Axios 2026-07-28 'Anthropic, OpenAI blow past Starbucks, McDonald's amid AI boom'(직접 fetch 403). 재인용: IBTimes 2026-07-28 / TIPP Insights 2026-07-28. 원자료는 AI 투자리서치 플랫폼 Funda, Tae Kim(Key Context) 소개.",
               "evidence_note": "재인용 보도 기준 Anthropic·OpenAI 합계 연환산 약 $120B, Anthropic 이 약 60%($71B) → OpenAI 약 $49B. 기준일·산정방법 미공개이므로 확정값·시계열로 취급하지 않음.",
-              "source_locator": null
+              "source_locator": null,
+              "created_at": "2026-08-02 16:14:11"
             }
           },
           {
@@ -1623,7 +1671,8 @@
               "verification_reason": "Sacra 외부 추정 — 2026-02 연환산 약 $25B(2025말 $20B 대비 상승)",
               "source_note": "Sacra 추정치(sacra.com/c/openai). 공식 아님·원문 직접 read 미수행.",
               "evidence_note": "Sacra 는 2026-02 OpenAI 연환산 매출을 약 $25B 로 추정(2025 말 $20B 에서 상승).",
-              "source_locator": null
+              "source_locator": null,
+              "created_at": "2026-07-28 01:17:21"
             }
           }
         ],
@@ -1735,7 +1784,7 @@
       },
       "freshness": {
         "latest_official_as_of": "2025-12-31",
-        "generated_kst": "2026-08-19 15:10"
+        "generated_kst": "2026-08-19 15:27"
       }
     }
   },
@@ -1768,7 +1817,8 @@
           "verification_reason": "Series H 공식 원문 직접 확인",
           "source_note": null,
           "evidence_note": null,
-          "source_locator": null
+          "source_locator": null,
+          "created_at": "2026-07-27 14:33:37"
         },
         "official_metric_type": "revenue_run_rate",
         "official_series": [
@@ -1796,7 +1846,8 @@
             "verification_reason": "직접 기사 slug 미확보, 2025-09-26 발표+다수 recap 교차확인",
             "source_note": "Anthropic 2025-09-26 글로벌 리더십 발표에서 회고; PYMNTS/Bloomberg 등 recap 교차 인용",
             "evidence_note": "2024년 초(≈1월) run-rate 약 $87M로 복수 매체·recap이 교차 언급(원문 slug 미확보)",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 1.0,
@@ -1822,7 +1873,8 @@
             "verification_reason": "Series F 공식 원문에 '$1B(2025 초)' 직접 명시",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 5.0,
@@ -1848,7 +1900,8 @@
             "verification_reason": "Series F 공식 원문에 'over $5B(2025 8월)' 직접 명시",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 9.0,
@@ -1874,7 +1927,8 @@
             "verification_reason": "2026-04-06 보도 기사에 '$9B(2025말)' 회고 직접 명시",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 14.0,
@@ -1900,7 +1954,8 @@
             "verification_reason": "Series G 공식 원문 직접 확인",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 30.0,
@@ -1926,7 +1981,8 @@
             "verification_reason": "2026-04-06 기사에 Amodei가 '$30B 초과' 확인, 직접 URL",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 47.0,
@@ -1952,7 +2008,8 @@
             "verification_reason": "Series H 공식 원문 직접 확인",
             "source_note": null,
             "evidence_note": null,
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           }
         ],
         "estimated_series": [
@@ -1980,7 +2037,8 @@
             "verification_reason": "사용자 제공 TickerTrends 이미지에서 값·날짜 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지(텔레그램 첨부)",
             "evidence_note": "이미지에서 2026-05-21 $54.6B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 67.4,
@@ -2006,7 +2064,8 @@
             "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지",
             "evidence_note": "이미지에서 2026-06-03 $67.4B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 70.5,
@@ -2032,7 +2091,8 @@
             "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지",
             "evidence_note": "이미지에서 2026-06-15 $70.5B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 69.6,
@@ -2058,7 +2118,8 @@
             "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지",
             "evidence_note": "이미지에서 2026-06-27 $69.6B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 71.9,
@@ -2084,7 +2145,8 @@
             "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지",
             "evidence_note": "이미지에서 2026-07-09 $71.9B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 69.0,
@@ -2110,7 +2172,8 @@
             "verification_reason": "사용자 제공 Yipit 인용 메모, 원문 URL 미확인",
             "source_note": "사용자 제공(YipitData 인용 메모)",
             "evidence_note": "약 $69.0B(2026-07-10) Yipit 추정으로 제공됨",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 74.3,
@@ -2136,7 +2199,8 @@
             "verification_reason": "TickerTrends 이미지 식별, 원문 URL 미확인",
             "source_note": "사용자 제공 TickerTrends 이미지",
             "evidence_note": "이미지에서 2026-07-22 $74.3B 식별",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-27 14:33:37"
           },
           {
             "value_low_usd_bn": 71.0,
@@ -2162,7 +2226,8 @@
             "verification_reason": "Funda 원자료·산정방법 미확인. Axios 원문 직접 fetch 403 — 재인용 2건으로 수치만 교차확인",
             "source_note": "1차: Axios 2026-07-28 보도(직접 fetch 403). 재인용: IBTimes 2026-07-28 / TIPP Insights 2026-07-28. 원자료는 AI 투자리서치 플랫폼 Funda, Tae Kim(Key Context) 소개.",
             "evidence_note": "재인용 보도 기준 Anthropic 연환산 약 $71B(합계 약 $120B 의 약 60%). 기준일·산정방법 미공개 — TickerTrends 추정선과 별도 마커.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           }
         ],
         "derived_series": [],
@@ -2252,7 +2317,8 @@
           "verification_reason": "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인",
           "source_note": "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행.",
           "evidence_note": "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님).",
-          "source_locator": null
+          "source_locator": null,
+          "created_at": "2026-07-28 00:59:20"
         },
         "official_metric_type": "arr",
         "official_series": [
@@ -2280,7 +2346,8 @@
             "verification_reason": "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인",
             "source_note": "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행.",
             "evidence_note": "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 00:59:20"
           },
           {
             "value_low_usd_bn": 6.0,
@@ -2306,7 +2373,8 @@
             "verification_reason": "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인",
             "source_note": "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행.",
             "evidence_note": "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 00:59:20"
           },
           {
             "value_low_usd_bn": 20.0,
@@ -2332,7 +2400,8 @@
             "verification_reason": "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+재인용 교차확인",
             "source_note": "OpenAI 공식 블로그 URL 확인(WebSearch 인덱싱). 페이지 직접 read 는 403 차단으로 미수행.",
             "evidence_note": "공식 페이지 인덱싱 기준 ARR $2B(2023)/$6B(2024)/$20B 초과(2025), 3x YoY — 검색·재인용 교차확인(원문 직접 인용 아님).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 00:59:20"
           }
         ],
         "estimated_series": [
@@ -2360,7 +2429,8 @@
             "verification_reason": "Sacra 외부 추정 — 2024 말 연환산 약 $4B",
             "source_note": "Sacra 추정치(sacra.com/c/openai). 공식 아님·원문 직접 read 미수행.",
             "evidence_note": "Sacra 는 2024 말 OpenAI 연환산 매출을 약 $4B 로 추정.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 01:17:21"
           },
           {
             "value_low_usd_bn": 25.0,
@@ -2386,7 +2456,8 @@
             "verification_reason": "Sacra 외부 추정 — 2026-02 연환산 약 $25B(2025말 $20B 대비 상승)",
             "source_note": "Sacra 추정치(sacra.com/c/openai). 공식 아님·원문 직접 read 미수행.",
             "evidence_note": "Sacra 는 2026-02 OpenAI 연환산 매출을 약 $25B 로 추정(2025 말 $20B 에서 상승).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 01:17:21"
           },
           {
             "value_low_usd_bn": 33.0,
@@ -2412,7 +2483,8 @@
             "verification_reason": "원문(2026-07-30) 직접 확인 — 다만 TickerTrends 가 산정 방법·기초자료를 공개하지 않아 provisional",
             "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
             "evidence_note": "원문 목록의 2026-05-30 시점 추정치 $33.0B(YoY 223%).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           },
           {
             "value_low_usd_bn": 37.3,
@@ -2438,7 +2510,8 @@
             "verification_reason": "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional",
             "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
             "evidence_note": "원문 목록의 2026-06-25 시점 추정치 $37.3B(YoY 245%).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           },
           {
             "value_low_usd_bn": 38.5,
@@ -2464,7 +2537,8 @@
             "verification_reason": "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional",
             "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
             "evidence_note": "원문 목록의 2026-07-02 시점 추정치 $38.5B(YoY 281%).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           },
           {
             "value_low_usd_bn": 40.3,
@@ -2490,7 +2564,8 @@
             "verification_reason": "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional",
             "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
             "evidence_note": "원문 목록의 2026-07-09 시점 추정치 $40.3B(YoY 282% — 원문 기준 YoY 정점).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           },
           {
             "value_low_usd_bn": 49.0,
@@ -2516,7 +2591,8 @@
             "verification_reason": "Funda 원자료·산정방법 미확인. Axios 원문 직접 fetch 403 — 재인용 2건으로 수치만 교차확인",
             "source_note": "1차: Axios 2026-07-28 'Anthropic, OpenAI blow past Starbucks, McDonald's amid AI boom'(직접 fetch 403). 재인용: IBTimes 2026-07-28 / TIPP Insights 2026-07-28. 원자료는 AI 투자리서치 플랫폼 Funda, Tae Kim(Key Context) 소개.",
             "evidence_note": "재인용 보도 기준 Anthropic·OpenAI 합계 연환산 약 $120B, Anthropic 이 약 60%($71B) → OpenAI 약 $49B. 기준일·산정방법 미공개이므로 확정값·시계열로 취급하지 않음.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           },
           {
             "value_low_usd_bn": 42.6,
@@ -2542,7 +2618,8 @@
             "verification_reason": "원문(2026-07-30) 직접 확인 — 산정 방법 미공개로 provisional",
             "source_note": "TickerTrends Research 'OpenAI ARR Growth Accelerated Into July'(2026-07-30) 원문 직접 확인. 외부 추정 — 공식 ARR 아님.",
             "evidence_note": "원문 최신 read: 2026-07-29 $42.6B(YoY 259%). 6/25 $37.3B 대비 약 $5.2B 증가.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-08-02 16:14:11"
           }
         ],
         "derived_series": [
@@ -2570,7 +2647,8 @@
             "verification_reason": "월 매출 $2B 를 12배 한 연환산 계산값(공식 ARR 아님)",
             "source_note": "파생 계산값 — 원본은 corroborated 월매출 관측치.",
             "evidence_note": "$2B/월 × 12 = $24B 연환산(파생 계산값 — 공식 ARR 로 표시하지 않음).",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 00:59:20"
           }
         ],
         "monthly_series": [
@@ -2598,7 +2676,8 @@
             "verification_reason": "공식 URL 확인, 페이지 직접 read 미수행(403) — WebSearch 인덱싱+복수매체(CNBC/CoinDesk 등) 교차확인",
             "source_note": "OpenAI 공식 발표 URL 확인(WebSearch 인덱싱)+복수 매체 재인용. 페이지 직접 read 는 403 차단으로 미수행.",
             "evidence_note": "월 매출 $2B 돌파(2026-03-31 발표) — 공식 페이지 인덱싱+CNBC/CoinDesk 등 재인용 교차확인. 이는 월 매출이며 ARR 아님.",
-            "source_locator": null
+            "source_locator": null,
+            "created_at": "2026-07-28 00:59:20"
           }
         ],
         "growth_velocity": {

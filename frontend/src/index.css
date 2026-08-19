@@ -59,6 +59,28 @@ button.tab { border: none; background: transparent; color: var(--muted); cursor:
   font-size: 15px; font-weight: 600; padding: 9px 16px; border-bottom: 3px solid transparent; }
 button.tab.on { color: var(--fg, #111); border-bottom-color: var(--reported); }
 a { color: var(--reported); }
-.chartwrap { width: 100%; overflow-x: auto; }
+.chartwrap { width: 100%; overflow-x: auto; position: relative; }
+
+/* 점 옆에 붙는 tooltip. 점을 가리지 않게 위로 띄운다. */
+.tip {
+  position: absolute; transform: translate(-50%, -108%); z-index: 5;
+  min-width: 210px; max-width: 300px; padding: 9px 11px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.12); font-size: 12px; line-height: 1.5;
+}
+.tip .tipval { font-weight: 700; font-size: 13.5px; margin-bottom: 5px; }
+.tip .tipq { font-weight: 400; color: var(--muted); }
+.tip dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 0; }
+.tip dt { color: var(--muted); }
+.tip dd { margin: 0; }
+.tip .tipnote { margin: 6px 0 0; color: var(--muted); }
+.tipclose {
+  position: absolute; top: 2px; right: 4px; border: 0; background: none;
+  color: var(--muted); font-size: 15px; line-height: 1; cursor: pointer;
+}
+/* 정렬 가능한 표 머리 */
+.thsort { border: 0; background: none; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+.thsort:hover { text-decoration: underline; }
+.sronly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 svg { display: block; max-width: 100%; }
 .footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 20px; }

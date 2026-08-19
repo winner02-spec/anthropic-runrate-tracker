@@ -40,6 +40,8 @@ def _point(r: dict) -> dict:
         "verification_reason": r.get("verification_reason"),
         "source_note": r.get("source_note"), "evidence_note": r.get("evidence_note"),
         "source_locator": r.get("source_locator"),
+        # 같은 날짜끼리 정렬할 때의 마지막 기준. 화면 순서가 새로고침마다 바뀌지 않게 한다.
+        "created_at": r.get("created_at"),
     }
 
 # 연환산 공식 매출선에 올릴 수 있는 metric_type(월매출·파생·제품·사용자수 제외)

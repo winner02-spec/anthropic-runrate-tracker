@@ -25,6 +25,9 @@ export interface Point {
   verification_reason?: string | null;
   source_note?: string | null;
   evidence_note?: string | null;
+  source_locator?: string | null;
+  /** 같은 날짜끼리의 마지막 정렬 기준. 표시하지 않는다. */
+  created_at?: string | null;
 }
 
 export interface Valuation {
