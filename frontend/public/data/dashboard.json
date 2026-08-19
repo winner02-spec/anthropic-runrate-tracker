@@ -2,7 +2,7 @@
   "schema": "0.3",
   "display_name": "Frontier AI Revenue Tracker",
   "note": "Anthropic·OpenAI 의 공식 Revenue Run-rate/ARR·외부추정·목표·밸류에이션을 분리 추적·비교합니다.",
-  "generated_kst": "2026-08-16 09:00",
+  "generated_kst": "2026-08-19 15:10",
   "company_order": [
     "anthropic",
     "openai"
@@ -511,9 +511,62 @@
             "source_note": "Reuters Breakingviews 2026-03-10 칼럼",
             "evidence_note": "2026년 2월 말 run-rate $19 billion(Reuters Breakingviews). 비공식성은 source_type=reported·confidence 로 표현.",
             "source_locator": null
+          },
+          {
+            "value_low_usd_bn": 65.0,
+            "value_high_usd_bn": null,
+            "metric_type": "revenue_run_rate",
+            "qualifier": "over",
+            "as_of_start": "2026-07-31",
+            "as_of_end": "2026-07-31",
+            "date_precision": "day",
+            "published_at": "2026-08-17",
+            "source_name": "CNBC",
+            "source_url": "https://www.cnbc.com/2026/08/17/anthropic-says-annualized-revenue-climbed-to-65-billion-in-july.html",
+            "source_tier": "B",
+            "source_type": "reported_company_statement",
+            "confidence_score": 0.5,
+            "evidence_text": "Anthropic tells investors annualized revenue run rate climbed to $65 billion in July (end-July). Q2 preliminary revenue more than $11.5B vs $787M a year earlier.",
+            "is_official": 0,
+            "is_estimate": 0,
+            "is_target": 0,
+            "is_derived": 0,
+            "calculation_method": null,
+            "verification_status": "corroborated",
+            "verification_reason": "원문(CNBC/Bloomberg)은 자동 수집이 차단되어 직접 열지 못했으나, Reuters·TechCrunch·Fortune·Axios·Crowdfund Insider·PYMNTS 등 복수 매체가 같은 수치를 보도해 교차확인함",
+            "source_note": "canonical: CNBC 2026-08-17 (투자자 업데이트 입수 보도) / supporting: Bloomberg·Reuters·Axios·TechCrunch·Fortune 동일 수치 보도",
+            "evidence_note": "7월 말 기준 run-rate $65B 이상. 2분기 잠정 매출 $11.5B 이상(전년 동기 $787M). DB 의 공식 계열(2025-12 $9B → 2026-04 $30B → 2026-05 $47B)과 정합. 원문은 자동 수집 차단(403)이라 복수 매체로 교차확인",
+            "source_locator": null
           }
         ],
-        "target": [],
+        "target": [
+          {
+            "value_low_usd_bn": 190.0,
+            "value_high_usd_bn": 200.0,
+            "metric_type": "target",
+            "qualifier": "range",
+            "as_of_start": "2028-01-01",
+            "as_of_end": "2028-12-31",
+            "date_precision": "year",
+            "published_at": "2026-08-14",
+            "source_name": "Reuters (2026-08-14 단독, 소식통 인용)",
+            "source_url": "https://finance.yahoo.com/technology/ai/articles/exclusive-anthropic-ipo-valuation-hinges-001158885.html",
+            "source_tier": "B",
+            "source_type": "reported_company_statement",
+            "confidence_score": 0.5,
+            "evidence_text": "Anthropic is projecting 2028 revenue of roughly $190 billion to $200 billion, according to two people familiar with the company's financials.",
+            "is_official": 0,
+            "is_estimate": 0,
+            "is_target": 1,
+            "is_derived": 0,
+            "calculation_method": null,
+            "verification_status": "corroborated",
+            "verification_reason": "Reuters 단독 보도를 Yahoo Finance·Investing.com·SeekingAlpha·Euronext 등이 동일 수치로 재인용",
+            "source_note": "canonical: Reuters 2026-08-14 (소식통 2인 인용) / supporting: Yahoo Finance 재게재본에서 문장 직접 확인",
+            "evidence_note": "2028년 매출 전망 $190B~$200B. 회사 공식 가이던스가 아니라 IPO 밸류에이션 산정에 쓰이는 내부 전망을 매체가 전한 것 — 실적이 아니라 목표 계열로만 둔다.",
+            "source_locator": null
+          }
+        ],
         "derived": [],
         "monthly": []
       },
@@ -534,6 +587,24 @@
           "content_hash": "3265c809ed5b020cf30398923275b77c",
           "created_at": "2026-07-27 14:03:03",
           "updated_at": "2026-07-27 14:03:03",
+          "company_id": 1
+        },
+        {
+          "id": 3,
+          "as_of_date": "2026-05-28",
+          "published_at": "2026-05-28",
+          "money_basis": "post_money",
+          "valuation_usd_bn": 965.0,
+          "investment_usd_bn": 65.0,
+          "round_name": "Series H",
+          "source_name": "Anthropic",
+          "source_url": "https://www.anthropic.com/news/series-h",
+          "is_official": 1,
+          "evidence_text": "Anthropic has raised $65 billion in Series H funding led by Altimeter Capital, Dragoneer, Greenoaks, and Sequoia Capital, valuing the company at $965 billion post-money.",
+          "status": "confirmed",
+          "content_hash": "74ce2b18781e34c980ba8549ce0feb1d",
+          "created_at": "2026-08-19 15:00:25",
+          "updated_at": "2026-08-19 15:00:25",
           "company_id": 1
         }
       ],
@@ -765,15 +836,24 @@
           "recent_per30": 9.808,
           "prior_per30": 9.057
         },
-        "target_progress": null,
+        "target_progress": {
+          "official": 47.0,
+          "target_low": 190.0,
+          "target_high": 200.0,
+          "target_date": "2028-12-31",
+          "vs_target_low_pct": 24.7,
+          "vs_target_high_pct": 23.5,
+          "already_exceeded": false,
+          "days_to_target": 948
+        },
         "valuation_multiple": {
-          "valuation_usd_bn": 380.0,
+          "valuation_usd_bn": 965.0,
           "runrate_usd_bn": 47.0,
-          "multiple": 8.1,
+          "multiple": 20.5,
           "basis": "official",
-          "valuation_as_of": "2026-02-12",
+          "valuation_as_of": "2026-05-28",
           "runrate_as_of": "2026-05-28",
-          "date_gap_days": 105,
+          "date_gap_days": 0,
           "date_mismatch_warning": false
         },
         "product_contribution": [
@@ -793,16 +873,16 @@
       "quality": {
         "official_count": 7,
         "estimate_count": 8,
-        "target_count": 0,
+        "target_count": 1,
         "derived_count": 0,
         "monthly_count": 0,
         "verified_count": 8,
-        "corroborated_count": 3,
+        "corroborated_count": 5,
         "provisional_count": 8,
         "provisional_excluded": [],
         "needs_review_count": 0,
         "review_queue_count": 0,
-        "uncertain_asof_count": 9,
+        "uncertain_asof_count": 10,
         "last_collect": "2026-08-16 09:00:37",
         "last_errors": [
           "openai:OpenAI Newsroom: HTTPError('403 Client Error: Forbidden for url: https://openai.com/news')",
@@ -811,7 +891,7 @@
       },
       "freshness": {
         "latest_official_as_of": "2026-05-28",
-        "generated_kst": "2026-08-16 09:00"
+        "generated_kst": "2026-08-19 15:10"
       }
     },
     "openai": {
@@ -1212,6 +1292,32 @@
             "verification_reason": "2025-08 ARR $13B 보도(연말 $20B 전망); Epoch AI 데이터셋 교차확인",
             "source_note": "2025-08 매체 보도 + Epoch AI 데이터셋 재인용(원문 직접 read 미수행).",
             "evidence_note": "2025년 8월 ARR 약 $13B 도달($8.3B 조달 라운드 시점), 연말 $20B 전망.",
+            "source_locator": null
+          },
+          {
+            "value_low_usd_bn": 40.0,
+            "value_high_usd_bn": null,
+            "metric_type": "revenue_run_rate",
+            "qualifier": "over",
+            "as_of_start": "2026-08-13",
+            "as_of_end": "2026-08-13",
+            "date_precision": "day",
+            "published_at": "2026-08-13",
+            "source_name": "Bloomberg",
+            "source_url": "https://www.bloomberg.com/news/articles/2026-08-13/openai-s-revenue-run-rate-tops-40-billion-ahead-of-ipo",
+            "source_tier": "B",
+            "source_type": "reported",
+            "confidence_score": 0.5,
+            "evidence_text": "OpenAI is now on pace to bring in annualized revenue of more than $40 billion, roughly double its run rate from the end of 2025. (Bloomberg 2026-08-13)",
+            "is_official": 0,
+            "is_estimate": 0,
+            "is_target": 0,
+            "is_derived": 0,
+            "calculation_method": null,
+            "verification_status": "corroborated",
+            "verification_reason": "원문(CNBC/Bloomberg)은 자동 수집이 차단되어 직접 열지 못했으나, Reuters·TechCrunch·Fortune·Axios·Crowdfund Insider·PYMNTS 등 복수 매체가 같은 수치를 보도해 교차확인함",
+            "source_note": "canonical: Bloomberg 2026-08-13 (소식통 인용) / supporting: PYMNTS·Yahoo Finance·Benzinga·qz 동일 수치 재인용",
+            "evidence_note": "run-rate $40B 돌파, 2025년 말($20B 초과) 대비 약 2배. 원문은 유료·자동 수집 차단이라 복수 매체로 교차확인",
             "source_locator": null
           }
         ],
@@ -1615,7 +1721,7 @@
         "derived_count": 1,
         "monthly_count": 1,
         "verified_count": 0,
-        "corroborated_count": 9,
+        "corroborated_count": 10,
         "provisional_count": 8,
         "provisional_excluded": [],
         "needs_review_count": 0,
@@ -1629,7 +1735,7 @@
       },
       "freshness": {
         "latest_official_as_of": "2025-12-31",
-        "generated_kst": "2026-08-16 09:00"
+        "generated_kst": "2026-08-19 15:10"
       }
     }
   },
@@ -2072,13 +2178,13 @@
           "label": "하한/범위 기준(정밀값 아님)"
         },
         "valuation_multiple": {
-          "valuation_usd_bn": 380.0,
+          "valuation_usd_bn": 965.0,
           "runrate_usd_bn": 47.0,
-          "multiple": 8.1,
+          "multiple": 20.5,
           "basis": "official",
-          "valuation_as_of": "2026-02-12",
+          "valuation_as_of": "2026-05-28",
           "runrate_as_of": "2026-05-28",
-          "date_gap_days": 105,
+          "date_gap_days": 0,
           "date_mismatch_warning": false
         },
         "normalized": [

@@ -1,3 +1,6 @@
 # 수동으로 감시할 기사 URL을 한 줄에 하나씩 추가하세요. (# 은 주석)
 # 예) https://www.anthropic.com/news/anthropic-raises-series-...
 # CLI 로도 추가 가능: python -m tracker add-url <url>
+https://www.cnbc.com/2026/08/17/anthropic-says-annualized-revenue-climbed-to-65-billion-in-july.html
+https://www.axios.com/2026/08/17/anthropic-revenue-run-rate-ipo-openai
+https://www.bloomberg.com/news/articles/2026-08-13/openai-s-revenue-run-rate-tops-40-billion-ahead-of-ipo

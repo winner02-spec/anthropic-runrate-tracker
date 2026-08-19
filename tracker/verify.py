@@ -54,7 +54,9 @@ def verify_history(conn, gap_days: int = 90, record: bool = False) -> dict:
             s, e, pub = _d(r.get("as_of_start")), _d(r.get("as_of_end")), _d(r.get("published_at"))
             if s and e and e < s:
                 issues["date_inversions"].append(f"[{slug}] id{r['id']} as_of {r['as_of_start']}>{r['as_of_end']}")
-            if pub and s and pub < s:
+            # 목표치는 앞날을 가리키는 것이 정의다. 발표일이 대상 기간보다 앞선 것은
+            # 어긋난 것이 아니라 당연한 것이다. 관측치에만 이 검사를 적용한다.
+            if pub and s and pub < s and not r.get("is_target"):
                 issues["date_inversions"].append(f"[{slug}] id{r['id']} published {r['published_at']} < as_of_start {r['as_of_start']}")
             if r.get("is_official") and r.get("is_estimate"):
                 issues["official_estimate_mix"].append(f"[{slug}] id{r['id']}")
