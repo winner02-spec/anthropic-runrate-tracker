@@ -2,7 +2,7 @@
   "schema": "0.3",
   "display_name": "Frontier AI Revenue Tracker",
   "note": "Anthropic·OpenAI 의 공식 Revenue Run-rate/ARR·외부추정·목표·밸류에이션을 분리 추적·비교합니다.",
-  "generated_kst": "2026-09-27 09:00",
+  "generated_kst": "2026-10-04 09:00",
   "company_order": [
     "anthropic",
     "openai"
@@ -557,6 +557,33 @@
             "evidence_note": "7월 말 기준 run-rate $65B 이상. 2분기 잠정 매출 $11.5B 이상(전년 동기 $787M). DB 의 공식 계열(2025-12 $9B → 2026-04 $30B → 2026-05 $47B)과 정합. 원문은 자동 수집 차단(403)이라 복수 매체로 교차확인",
             "source_locator": null,
             "created_at": "2026-08-18 08:15:45"
+          },
+          {
+            "value_low_usd_bn": 100.0,
+            "value_high_usd_bn": null,
+            "metric_type": "revenue_run_rate",
+            "qualifier": "over",
+            "as_of_start": "2026-09-18",
+            "as_of_end": "2026-09-18",
+            "date_precision": "day",
+            "published_at": "2026-09-18",
+            "source_name": "Axios / Bloomberg (NYT 원보도 인용)",
+            "source_url": "https://www.axios.com/2026/09/18/anthropic-100-billion-revenue",
+            "source_tier": "B",
+            "source_type": "reported",
+            "confidence_score": 0.75,
+            "evidence_text": "NYT 보도 인용: Anthropic 연환산 매출 run-rate가 1,000억 달러를 상회하는 속도. 7월 650억 달러에서 약 2개월 만에 50%+ 증가. Bloomberg·Axios·Gulf News 교차 확인.",
+            "is_official": 0,
+            "is_estimate": 0,
+            "is_target": 0,
+            "is_derived": 0,
+            "calculation_method": null,
+            "verification_status": "corroborated",
+            "verification_reason": "Axios 원문은 403 으로 직접 fetch 불가. Bloomberg(2026-09-18)·Axios(2026-09-18)·Gulf News·Yahoo Finance 가 동일하게 NYT 원보도를 인용해 '$100B 초과 페이스, 7월 $65B 대비 50%+ 증가' 로 보도 — 복수 매체 교차확인으로 corroborated.",
+            "source_note": "canonical: New York Times 2026-09-18 원보도 / supporting: Bloomberg·Axios·Gulf News·Yahoo Finance 가 동일 수치로 인용 보도",
+            "evidence_note": "2026-09-18 기준 run-rate $100B 초과 페이스. 7월 $65B 대비 약 2개월 만에 50%+ 증가. DB 의 직전 보도치(2026-07-31 기준 $65B 이상)와 정합하며 그 연장선이다. 원문(Axios)은 자동 fetch 가 403 이라 복수 매체로 교차확인. 회계상 연간 매출이 아니라 현재 판매 속도의 연환산값이다.",
+            "source_locator": null,
+            "created_at": "2026-09-29 23:27:49"
           }
         ],
         "target": [
@@ -903,13 +930,13 @@
         "derived_count": 0,
         "monthly_count": 0,
         "verified_count": 8,
-        "corroborated_count": 5,
+        "corroborated_count": 6,
         "provisional_count": 8,
         "provisional_excluded": [],
         "needs_review_count": 0,
         "review_queue_count": 0,
         "uncertain_asof_count": 10,
-        "last_collect": "2026-09-27 09:00:47",
+        "last_collect": "2026-10-04 09:00:34",
         "last_errors": [
           "openai:OpenAI Newsroom: HTTPError('403 Client Error: Forbidden for url: https://openai.com/news')",
           "openai:OpenAI Index: HTTPError('403 Client Error: Forbidden for url: https://openai.com/index')"
@@ -917,7 +944,7 @@
       },
       "freshness": {
         "latest_official_as_of": "2026-05-28",
-        "generated_kst": "2026-09-27 09:00"
+        "generated_kst": "2026-10-04 09:00"
       }
     },
     "openai": {
@@ -1773,10 +1800,10 @@
         "corroborated_count": 10,
         "provisional_count": 8,
         "provisional_excluded": [],
-        "needs_review_count": 0,
-        "review_queue_count": 0,
+        "needs_review_count": 1,
+        "review_queue_count": 1,
         "uncertain_asof_count": 5,
-        "last_collect": "2026-09-27 09:00:47",
+        "last_collect": "2026-10-04 09:00:34",
         "last_errors": [
           "openai:OpenAI Newsroom: HTTPError('403 Client Error: Forbidden for url: https://openai.com/news')",
           "openai:OpenAI Index: HTTPError('403 Client Error: Forbidden for url: https://openai.com/index')"
@@ -1784,7 +1811,7 @@
       },
       "freshness": {
         "latest_official_as_of": "2025-12-31",
-        "generated_kst": "2026-09-27 09:00"
+        "generated_kst": "2026-10-04 09:00"
       }
     }
   },
